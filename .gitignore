@@ -37,10 +37,16 @@ Thumbs.db
 # Claude Code — local machine state and skills
 .claude/
 
-# Planning documents — kept local, not published to the remote.
+# Planning documents and coursework deliverables — kept local, not published.
 # Remove these lines to publish them.
 Declutter_PRD_Project.md
 Declutter_PRD_Product.md
 *.pdf
-AGENTS.md
-CLAUDE.md
+*.docx
+Uvere*
+
+# Local doc tooling stays out; the agent-skills config is committed.
+# (Must be docs/* not docs — git will not descend into an excluded directory,
+# so a negation inside one is never evaluated.)
+docs/*
+!docs/agents/
