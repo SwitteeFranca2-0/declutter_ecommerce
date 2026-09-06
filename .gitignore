@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+next-env.d.ts
+
+# Environment — never commit credentials; .env.example is committed
+.env
+.env*.local
+!.env.example
+
+# Uploaded listing images (PRD §12: local filesystem storage)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Testing
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code — local machine state and skills
+.claude/
+
+# Planning documents — kept local, not published to the remote.
+# Remove these lines to publish them.
+Declutter_PRD_Project.md
+Declutter_PRD_Product.md
+*.pdf
+AGENTS.md
+CLAUDE.md
