@@ -2,49 +2,128 @@
 
 An escrow-mediated peer-to-peer marketplace for used goods.
 
-Buyers and sellers of second-hand items normally have to trust each other. Declutter removes that requirement by placing an identified intermediary between them: listings are curated and priced by an operator, payment is held by the platform rather than passed directly to the seller, the two parties stay anonymous to each other until a deposit is placed, and physical handover is confirmed by a single-use PIN that only a buyer who has actually paid can produce.
+Declutter puts a verified intermediary between private buyers and sellers. Listings are reviewed and priced by an admin, payments are held until handover, communication is mediated, and the physical exchange is gated by a payment-proof PIN. Money never moves directly between the two parties, and contact details unlock in stages tied to commitment.
 
-Built as the coursework project for **DLBITPEWP01_E — Project: Getting Started in Web Programming** (Task 2, E-Commerce Site).
+Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 2 (E-Commerce Site).
 
 ## Status
 
-**Planning.** No application code has been written yet — this repository currently contains only this README. Implementation begins from the project PRD, which is not published here.
+Stage A, slice 02 of 6. The application runs against a seeded PostgreSQL database and renders real listings. The catalogue grid, item detail, cart and checkout arrive in slices 03 to 06.
 
-## How it works
+## Requirements
 
-| Stage | What happens |
+- Node.js 20 or newer
+- Docker, or any local PostgreSQL 17
+
+No API keys, no hosted services, no accounts. Everything runs locally.
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env
+
+# Start PostgreSQL. Skip this if you already have one running locally and have
+# pointed DATABASE_URL at it instead.
+docker compose up -d
+
+npm run db:migrate     # apply the schema
+npm run db:seed        # load 15 listings across six categories
+npm run dev
+```
+
+Open http://localhost:3000.
+
+If you prefer your own PostgreSQL to the container, create two databases, `declutter` and `declutter_test`, and edit `DATABASE_URL` and `TEST_DATABASE_URL` in `.env`. Nothing else changes.
+
+## Demo accounts
+
+Every seeded account uses the password **`declutter`**.
+
+| Role | Email |
 |---|---|
-| Submission | A seller submits an item and the amount they want to receive |
-| Curation | The operator edits the listing and sets the public price; the difference is the platform margin |
-| Enquiry | Buyers ask questions through an anonymised relay — neither party sees the other |
-| Deposit | A 10% deposit places the item on hold for 72 hours and opens a direct channel |
-| Balance | The buyer pays the remainder and receives a handover PIN |
-| Handover | The seller enters the PIN in person, which releases the payout |
+| Admin | `admin@declutter.test` |
+| Seller | `seller1@declutter.test` |
+| Seller | `seller2@declutter.test` |
+| Buyer | `buyer1@declutter.test` |
+| Buyer | `buyer2@declutter.test` |
 
-An item moves through `pending_review → listed → on_hold → sold → completed`, with at most one active order against it at any time.
+Sign-in arrives in Stage B. Until then, checkout acts as `buyer1` through a single server-side function, so the schema never needs a nullable buyer.
 
-## Planned stack
+## Tests
 
-| Layer | Technology |
+```bash
+npm test           # once
+npm run test:watch # watching
+npm run typecheck  # tsc --noEmit
+```
+
+Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
+
+Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, and that money survives as `Decimal` rather than drifting as a float.
+
+## Where AJAX is used
+
+The course assesses client-side scripting outcomes (DOM, AJAX, JSON) directly, so these are explicit `fetch` calls against JSON route handlers rather than server actions, which would hide the exchange.
+
+| Interaction | Where | Status |
+|---|---|---|
+| Category filter re-renders the catalogue grid with no page reload | catalogue page against `GET /api/items` | slice 03 |
+| Cart badge count updates in place when an item is added | header against `GET /api/cart/summary` | slice 05 |
+| New messages appear in a thread without a reload, by polling | thread view | Stage C |
+
+This section is updated in the same slice that adds each interaction.
+
+## Scripts
+
+| Script | Does |
 |---|---|
-| Framework | Next.js (App Router) |
-| Language | TypeScript |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Authentication | NextAuth (Credentials) |
-| Styling | Tailwind CSS + shadcn/ui |
-| Maps | Leaflet + OpenStreetMap |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm test` | Vitest, once |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run db:migrate` | Apply committed migrations |
+| `npm run db:seed` | Load demo users and listings |
+| `npm run db:reset` | Drop, re-migrate and re-seed |
+| `npm run db:studio` | Prisma Studio, a database browser |
 
-Chosen so the project runs from a clone with a local PostgreSQL instance and no paid services, hosted providers, or API keys.
+## Stack
 
-## Getting started
+| Layer | Choice | Why |
+|---|---|---|
+| Framework | Next.js, App Router | Pages and JSON API in one project |
+| Language | TypeScript, strict | No `any` in production code |
+| Database | PostgreSQL, local | No hosted service, no credential an examiner lacks |
+| ORM | Prisma | Typed queries, committed migrations, seed script |
+| Auth | NextAuth, credentials only | No OAuth provider, so no third-party keys |
+| Styling | Tailwind CSS | Responsive marketplace grid |
+| Client scripting | TypeScript and the Fetch API | The assessed AJAX work |
+| Maps | Leaflet with OpenStreetMap | No API key, no billing |
+| Images | Local filesystem | No object storage account |
+| Tests | Vitest | |
 
-Setup instructions will be added here alongside the first application code. They are omitted rather than written in advance so that everything documented in this file is known to work.
+Every choice is constrained by one rule: an examiner must clone this repository and run it with no API keys and no paid services.
 
-## Scope
+## Simulated subsystems
 
-Payments, SMS verification, seller payouts, and hold expiry are deliberately simulated — the brief does not require real payment processing, and simulating them keeps the project runnable by an assessor without external accounts. Dispute resolution, ratings, reputation, and search ranking are out of scope.
+Five things are deliberately faked, and each is labelled as such in the interface so nobody is misled into thinking money moved.
 
-## Licence
+| Subsystem | What happens instead |
+|---|---|
+| Payment gateway | A confirmation endpoint driving the same state transitions a real webhook would |
+| Phone verification | The full flow, accepting any code |
+| Bank payouts | An admin "mark paid" action writing a payout record |
+| Hold expiry | Evaluated on read, so there is no cron or scheduler dependency |
+| Chat infrastructure | In-house messaging on the messages table |
 
-Academic coursework. Not licensed for reuse.
+## Data model
+
+Six tables: users, items, item images, orders, threads, messages, payouts.
+
+Two decisions worth knowing, because they look unusual:
+
+**No join table between orders and items.** Every listing is a unique single item, so quantity is meaningless and an order references exactly one item. A cart of three items produces three orders.
+
+**The seller's payout and the public price are stored separately**, not derived from one another by a percentage. The payout figure is a promise to a person and must never be subject to rounding drift. The difference is the platform margin.
+
+One active order per item is enforced by a partial unique index over non-terminal statuses, so two buyers depositing at the same moment cannot both succeed. That is a database guarantee, not an application check.

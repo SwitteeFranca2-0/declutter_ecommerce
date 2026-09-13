@@ -1,0 +1,31 @@
+# Local PostgreSQL for development and tests.
+#
+# The project needs a local Postgres reachable through DATABASE_URL. This
+# machine is IT-managed and /opt/homebrew is owned by another account, so a
+# Homebrew install is not possible without an administrator. Docker runs
+# entirely in user space and needs no elevated permission.
+#
+#   docker compose up -d      start
+#   docker compose down       stop, keeping data
+#   docker compose down -v    stop and delete the data volume
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: declutter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: declutter
+      POSTGRES_PASSWORD: declutter
+      POSTGRES_DB: declutter
+    ports:
+      - "5432:5432"
+    volumes:
+      - declutter-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U declutter -d declutter"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  declutter-pgdata:
