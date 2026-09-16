@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A, slice 02 of 6. The application runs against a seeded PostgreSQL database and renders real listings. The catalogue grid, item detail, cart and checkout arrive in slices 03 to 06.
+Stage A, slices 02 and 04 of 6. The application runs against a seeded PostgreSQL database, lists real items and has a working item detail page with a gallery, server-computed deposit and balance, and graceful handling of items that are gone. The catalogue grid with its category filter, the cart and checkout arrive in slices 03, 05 and 06.
 
 ## Requirements
 
