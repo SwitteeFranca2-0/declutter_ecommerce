@@ -14,6 +14,7 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/prisma";
 import { balanceFor, depositFor } from "@/lib/pricing";
+import type { CatalogueQuery } from "@/lib/item-query";
 
 /**
  * Return items whose hold has lapsed to the marketplace.
@@ -124,15 +125,33 @@ export const getListedItem = cache(async (id: string): Promise<ItemView | null> 
   return item ? toView(item as RawItem) : null;
 });
 
-/** Every listed item, newest first. Slice 03 adds filtering and sorting. */
-export async function getListedItems(): Promise<ItemView[]> {
-  await releaseLapsedHolds();
+const ORDER_BY = {
+  newest: { createdAt: "desc" },
+  price_asc: { listedPrice: "asc" },
+  price_desc: { listedPrice: "desc" },
+} as const;
 
-  const items = await prisma.item.findMany({
-    where: { status: "listed" },
-    select: ITEM_SELECT,
-    orderBy: { createdAt: "desc" },
-  });
+/**
+ * The catalogue.
+ *
+ * `status: "listed"` is applied unconditionally and is not derived from any
+ * input, so no query string can widen the result beyond what is publicly
+ * visible. The category, already validated against the enum, only ever narrows
+ * it further.
+ */
+export const getListedItems = cache(
+  async (query: CatalogueQuery = { sort: "newest" }): Promise<ItemView[]> => {
+    await releaseLapsedHolds();
 
-  return items.map((item) => toView(item as RawItem));
-}
+    const items = await prisma.item.findMany({
+      where: {
+        status: "listed",
+        ...(query.category ? { category: query.category } : {}),
+      },
+      select: ITEM_SELECT,
+      orderBy: ORDER_BY[query.sort],
+    });
+
+    return items.map((item) => toView(item as RawItem));
+  },
+);

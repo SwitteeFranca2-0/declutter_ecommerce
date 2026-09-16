@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A, slices 02 and 04 of 6. The application runs against a seeded PostgreSQL database, lists real items and has a working item detail page with a gallery, server-computed deposit and balance, and graceful handling of items that are gone. The catalogue grid with its category filter, the cart and checkout arrive in slices 03, 05 and 06.
+Stage A, slices 02 to 04 of 6. The marketplace grid, category filter, price sort and item detail page all work against a seeded PostgreSQL database. The cart and checkout arrive in slices 05 and 06.
 
 ## Requirements
 
@@ -66,11 +66,28 @@ Coverage concentrates on what clicking cannot verify: the item state machine's l
 
 The course assesses client-side scripting outcomes (DOM, AJAX, JSON) directly, so these are explicit `fetch` calls against JSON route handlers rather than server actions, which would hide the exchange.
 
-| Interaction | Where | Status |
-|---|---|---|
-| Category filter re-renders the catalogue grid with no page reload | catalogue page against `GET /api/items` | slice 03 |
-| Cart badge count updates in place when an item is added | header against `GET /api/cart/summary` | slice 05 |
-| New messages appear in a thread without a reload, by polling | thread view | Stage C |
+### 1. Category filter and sort on the marketplace
+
+**Built.** `src/app/catalogue.tsx` calls `GET /api/items` and replaces the grid in place.
+
+Choosing a category chip or changing the sort builds a query string, calls `fetch("/api/items?category=books&sort=price_asc")`, parses the JSON response and sets React state, which re-renders the grid. No page reload and no form submission.
+
+The route handler is `src/app/api/items/route.ts`. It validates the query with Zod before touching the database, returns `400` with field-level detail on anything unrecognised, and applies `status: "listed"` unconditionally so no query string can widen the result past what is publicly visible.
+
+Details worth noting in the code:
+
+- The first render uses items fetched on the **server**, so the page is complete before any JavaScript runs and the catalogue works with JavaScript disabled. The filter is an enhancement, not a requirement.
+- In-flight requests are aborted with `AbortController` when the filter changes again, so a slow response for an old filter cannot overwrite a newer one.
+- The item count is in an `aria-live="polite"` region, so a screen reader hears the grid change.
+- Failures show a message and a retry, rather than an empty grid that looks like a category with no items.
+
+### 2. Cart badge
+
+**Slice 05.** Adding an item will `fetch` the cart summary and update the header count in place.
+
+### 3. Thread polling
+
+**Stage C.** New messages appear in a thread by polling a JSON route handler.
 
 This section is updated in the same slice that adds each interaction.
 
