@@ -13,6 +13,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+
+  // Migrations need a session-mode connection. Against a pooled database
+  // (Supabase's transaction pooler on 6543, pgBouncer generally) the
+  // session-level statements `prisma migrate` issues stall rather than fail.
+  // DIRECT_URL points at the session pooler instead, and is used only by
+  // migrate and introspect. Against a plain local Postgres the two are the
+  // same URL and nothing changes.
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------- enums ---
