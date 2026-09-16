@@ -16,6 +16,7 @@ import { getListedItem } from "@/lib/items";
 import { formatNaira } from "@/lib/pricing";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
 import { Gallery } from "./gallery";
+import { AddToCart } from "./add-to-cart";
 
 export const dynamic = "force-dynamic";
 
@@ -132,20 +133,7 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5">
-            {/* Wired to the cart in slice 05. Disabled rather than silently
-                inert, so nobody clicks it expecting something to happen. */}
-            <button
-              type="button"
-              disabled
-              className="flex h-12 items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Add to cart
-            </button>
-            <p className="text-center text-xs text-[#6B6B6B]">
-              The cart arrives in the next slice.
-            </p>
-          </div>
+          <AddToCart itemId={item.id} />
 
           <div className="flex items-start gap-2.5 rounded border border-dashed border-[#B4B4B4] p-3.5">
             <svg

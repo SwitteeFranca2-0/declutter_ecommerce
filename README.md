@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A, slices 02 to 04 of 6. The marketplace grid, category filter, price sort and item detail page all work against a seeded PostgreSQL database. The cart and checkout arrive in slices 05 and 06.
+Stage A, slices 02 to 05 of 6. The marketplace grid, category filter, price sort, item detail page and cart all work against a seeded PostgreSQL database. Checkout arrives in slice 06.
 
 ## Requirements
 
@@ -81,9 +81,17 @@ Details worth noting in the code:
 - The item count is in an `aria-live="polite"` region, so a screen reader hears the grid change.
 - Failures show a message and a retry, rather than an empty grid that looks like a category with no items.
 
-### 2. Cart badge
+### 2. Cart, and the header badge
 
-**Slice 05.** Adding an item will `fetch` the cart summary and update the header count in place.
+**Built.** `src/app/cart-provider.tsx` calls `POST /api/cart` and both the header badge and the cart page re-render from the response.
+
+The cart itself holds **item identifiers only**, in `localStorage`, so it survives navigation and closing the tab. It never stores a price. Whenever it changes, the identifiers are posted to `/api/cart`, which returns current prices, per-item availability and the totals. Adding an item updates the badge in place, with no reload.
+
+Storing identifiers rather than prices is a security decision, not a storage one. A price in `localStorage` is a price the buyer can edit, and it would go stale the moment an admin re-prices an item. Every figure shown comes back from the server.
+
+That round trip is also what powers **BUY-6**: an item reserved or sold by someone else while the buyer was browsing comes back marked unavailable, is struck through, excluded from every total, and cannot be checked out. It stays visible so the buyer can see what happened and remove it.
+
+The cart logic is a pure module in `src/lib/cart.ts` with no React and no `window`, so it is tested directly without a DOM, including malformed JSON, unknown identifiers and storage that throws.
 
 ### 3. Thread polling
 
