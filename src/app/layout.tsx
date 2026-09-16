@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "./cart-provider";
+import { Header } from "./header";
 
 // IBM Plex per the `frontend-design` skill: Sans for interface text, Mono for
 // prices in secondary position, counts and identifiers.
@@ -31,7 +33,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white">{children}</body>
+      <body className="min-h-full flex flex-col bg-white">
+        {/* One provider for the whole app: the header badge and the cart page
+            read the same state, so they can never disagree. */}
+        <CartProvider>
+          <Header />
+          <div className="flex-1">{children}</div>
+        </CartProvider>
+      </body>
     </html>
   );
 }
