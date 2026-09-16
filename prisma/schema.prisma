@@ -1,0 +1,240 @@
+// Declutter: escrow-mediated peer-to-peer resale marketplace.
+//
+// The whole schema ships in the first migration even though Stage A exercises
+// almost none of it. Constraints added before data exists are free; constraints
+// retrofitted afterwards are a migration problem. See ADR-0001.
+//
+// Money is Decimal, never Float. All amounts are Nigerian Naira.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  // Migrations need a session-mode connection. Against a pooled database
+  // (Supabase's transaction pooler on 6543, pgBouncer generally) the
+  // session-level statements `prisma migrate` issues stall rather than fail.
+  // DIRECT_URL points at the session pooler instead, and is used only by
+  // migrate and introspect. Against a plain local Postgres the two are the
+  // same URL and nothing changes.
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------- enums ---
+// Declared as Postgres enums so an invalid state is unrepresentable at the
+// database level rather than guarded in application code.
+
+enum Role {
+  buyer
+  seller
+  admin
+}
+
+enum ItemStatus {
+  pending_review
+  rejected
+  listed
+  on_hold
+  sold
+  completed
+}
+
+enum OrderStatus {
+  deposit_paid
+  balance_paid
+  completed
+  expired
+  cancelled
+}
+
+enum Category {
+  electronics
+  furniture
+  appliances
+  fashion
+  books
+  other
+}
+
+enum Condition {
+  like_new
+  good
+  fair
+}
+
+enum ThreadType {
+  relay
+  direct
+}
+
+enum ThreadStatus {
+  open
+  locked
+}
+
+enum MessageVisibility {
+  both
+  admin_only
+  buyer_and_admin
+  seller_and_admin
+}
+
+enum PayoutStatus {
+  due
+  paid
+}
+
+// ---------------------------------------------------------------- models ---
+
+model User {
+  id            String   @id @default(cuid())
+  role          Role
+  email         String   @unique
+  phone         String
+  phoneVerified Boolean  @default(false)
+  passwordHash  String
+  firstName     String
+  createdAt     DateTime @default(now())
+
+  items           Item[]    @relation("SellerItems")
+  approvedItems   Item[]    @relation("ApprovedByAdmin")
+  orders          Order[]
+  messages        Message[]
+  payoutsRecorded Payout[]
+
+  @@map("users")
+}
+
+model Item {
+  id          String    @id @default(cuid())
+  sellerId    String
+  title       String
+  description String
+  category    Category
+  condition   Condition
+
+  // Stored independently, never derived from each other by percentage, so the
+  // payout obligation is never subject to rounding drift. The difference is
+  // the platform margin.
+  sellerPayoutAmount Decimal @db.Decimal(12, 2)
+  listedPrice        Decimal @db.Decimal(12, 2)
+
+  status         ItemStatus @default(pending_review)
+  rejectionReason String?
+  approvedById   String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  seller     User        @relation("SellerItems", fields: [sellerId], references: [id])
+  approvedBy User?       @relation("ApprovedByAdmin", fields: [approvedById], references: [id])
+  images     ItemImage[]
+  orders     Order[]
+  threads    Thread[]
+
+  // The catalogue filters on status and category on every page load.
+  @@index([status, category])
+  @@index([sellerId])
+  @@map("items")
+}
+
+model ItemImage {
+  id        String @id @default(cuid())
+  itemId    String
+  url       String
+  sortOrder Int
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  // Lowest sortOrder is the card thumbnail.
+  @@unique([itemId, sortOrder])
+  @@index([itemId])
+  @@map("item_images")
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  itemId        String
+  buyerId       String
+  depositAmount Decimal     @db.Decimal(12, 2)
+  balanceAmount Decimal     @db.Decimal(12, 2)
+  status        OrderStatus @default(deposit_paid)
+
+  // Plaintext is shown to the buyer once at issue and never again.
+  pinHash       String?
+  pinIssuedAt   DateTime?
+  pinRedeemedAt DateTime?
+
+  holdExpiresAt DateTime
+  meetupLat     Float?
+  meetupLng     Float?
+  meetupLabel   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  item    Item     @relation(fields: [itemId], references: [id])
+  buyer   User     @relation(fields: [buyerId], references: [id])
+  threads Thread[]
+  payout  Payout?
+
+  @@index([buyerId])
+  @@index([itemId])
+  @@map("orders")
+  // One active order per item is enforced by a partial unique index over
+  // non-terminal statuses. Prisma's schema language cannot express a partial
+  // unique constraint, so it is raw DDL in the migration.
+}
+
+model Thread {
+  id           String       @id @default(cuid())
+  itemId       String
+  orderId      String?
+  threadType   ThreadType
+  status       ThreadStatus @default(open)
+  lockedReason String?
+  lockedAt     DateTime?
+  createdAt    DateTime     @default(now())
+
+  item     Item      @relation(fields: [itemId], references: [id])
+  order    Order?    @relation(fields: [orderId], references: [id])
+  messages Message[]
+
+  @@index([itemId])
+  @@index([orderId])
+  @@map("threads")
+}
+
+model Message {
+  id       String @id @default(cuid())
+  threadId String
+  senderId String
+  body     String
+
+  // Powers the anonymised relay: one messages table serves both thread types.
+  // An enquiry is stored with the buyer's identity attached and rendered to
+  // the seller without it.
+  visibleTo MessageVisibility @default(both)
+  createdAt DateTime          @default(now())
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User   @relation(fields: [senderId], references: [id])
+
+  @@index([threadId, createdAt])
+  @@map("messages")
+}
+
+model Payout {
+  id      String       @id @default(cuid())
+  orderId String       @unique
+  adminId String
+  amount  Decimal      @db.Decimal(12, 2)
+  status  PayoutStatus @default(due)
+  paidAt  DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
+  admin User  @relation(fields: [adminId], references: [id])
+
+  @@map("payouts")
+}

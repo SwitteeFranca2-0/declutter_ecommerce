@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#E8E8E8"/>
+  <line x1="0" y1="0" x2="800" y2="600" stroke="#C4C4C4" stroke-width="2"/>
+  <line x1="800" y1="0" x2="0" y2="600" stroke="#C4C4C4" stroke-width="2"/>
+  <rect x="0" y="0" width="800" height="600" fill="none" stroke="#B4B4B4" stroke-width="2"/>
+  <text x="400" y="292" font-family="IBM Plex Mono, Menlo, monospace" font-size="26"
+        fill="#6B6B6B" text-anchor="middle">bicycle</text>
+  <text x="400" y="326" font-family="IBM Plex Mono, Menlo, monospace" font-size="18"
+        fill="#9B9B9B" text-anchor="middle">placeholder 1 of 3</text>
+</svg>
