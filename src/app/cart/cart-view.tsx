@@ -102,19 +102,30 @@ export function CartView() {
           </div>
         </div>
 
-        {/* Checkout is slice 06. Disabled with no available items either way. */}
-        <button
-          type="button"
-          disabled
-          className="flex h-12 items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Proceed to checkout
-        </button>
-        <p className="text-center text-xs text-[#6B6B6B]">
-          {available === 0
-            ? "Nothing in your cart is currently available."
-            : "Checkout arrives in the next slice."}
-        </p>
+        {/* Checkout is all or nothing, so any unavailable line blocks it. */}
+        {available > 0 && unavailable === 0 ? (
+          <Link
+            href="/checkout"
+            className="flex h-12 items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white hover:opacity-90"
+          >
+            Proceed to checkout
+          </Link>
+        ) : (
+          <>
+            <button
+              type="button"
+              disabled
+              className="flex h-12 items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Proceed to checkout
+            </button>
+            <p className="text-center text-xs text-[#6B6B6B]">
+              {available === 0
+                ? "Nothing in your cart is currently available."
+                : "Remove unavailable items to continue."}
+            </p>
+          </>
+        )}
 
         <p className="text-xs leading-relaxed text-[#6B6B6B]">
           Each item becomes its own order. Unavailable items are never charged for.

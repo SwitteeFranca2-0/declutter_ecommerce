@@ -84,7 +84,8 @@ function missingLine(id: string): CartLine {
   };
 }
 
-function reasonFor(status: string): string {
+/** Why an item cannot be bought, in the buyer's words. Shared with checkout. */
+export function reasonFor(status: string): string {
   switch (status) {
     case "on_hold":
       return "Reserved by another buyer";

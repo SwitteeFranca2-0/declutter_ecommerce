@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A, slices 02 to 05 of 6. The marketplace grid, category filter, price sort, item detail page and cart all work against a seeded PostgreSQL database. Checkout arrives in slice 06.
+Stage A complete, slices 01 to 06. A buyer can browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows, all against a seeded PostgreSQL database. Stage B (sign-in, seller submission, admin approval) is next.
 
 ## Requirements
 
@@ -60,7 +60,7 @@ npm run typecheck  # tsc --noEmit
 
 Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
 
-Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, and that money survives as `Decimal` rather than drifting as a float.
+Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, and that money survives as `Decimal` rather than drifting as a float.
 
 ## Where AJAX is used
 
@@ -93,7 +93,19 @@ That round trip is also what powers **BUY-6**: an item reserved or sold by someo
 
 The cart logic is a pure module in `src/lib/cart.ts` with no React and no `window`, so it is tested directly without a DOM, including malformed JSON, unknown identifiers and storage that throws.
 
-### 3. Thread polling
+### 3. Paying the deposit at checkout
+
+**Built.** `src/app/checkout/checkout-view.tsx` calls `POST /api/checkout`, then clears the ordered items from the cart and moves to the confirmation page.
+
+The request body is `{ itemIds, acceptedTerms: true }` and nothing more. No price, deposit or total leaves the browser; if one is added by hand it is stripped by the Zod schema and never echoed. The route handler, `src/app/api/checkout/route.ts`, answers:
+
+- `201` with one order per item: reference, deposit paid, balance outstanding and hold expiry, all derived from stored prices
+- `400` for an empty cart, unaccepted refund terms or a malformed body
+- `409` listing every item that can no longer be reserved, in which case **no order at all** was created and the page re-checks the cart
+
+Checkout runs in a single transaction and moves each item from `listed` to `on_hold` for 72 hours. Two buyers paying for the same item at the same moment get exactly one order and one `409`, guaranteed by the partial unique index rather than by application code. Payment is simulated and the page says so above the pay button.
+
+### 4. Thread polling
 
 **Stage C.** New messages appear in a thread by polling a JSON route handler.
 
