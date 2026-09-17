@@ -9,14 +9,27 @@
  * server, so there is no port to manage and no server to start.
  */
 
+import { actAs } from "./session-state";
+
 type Handler = (request: Request) => Promise<Response> | Response;
+
+/**
+ * Who the request comes from.
+ *
+ * `as` takes the acting user's email, or nothing for a signed-out request.
+ * This is the session injection the primary seam was designed around: the
+ * handler, its guards and its queries are all the real thing.
+ */
+export type RequestOptions = { as?: { email: string } | null };
 
 /** GET a route handler with an optional query string. */
 export async function get(
   handler: Handler,
   path: string,
   query: Record<string, string> = {},
+  options: RequestOptions = {},
 ) {
+  actAs(options.as?.email ?? null);
   const url = new URL(path, "http://localhost:3000");
   for (const [key, value] of Object.entries(query)) {
     url.searchParams.set(key, value);
@@ -33,7 +46,9 @@ export async function postJson(
   handler: Handler,
   path: string,
   payload: unknown,
+  options: RequestOptions = {},
 ) {
+  actAs(options.as?.email ?? null);
   const url = new URL(path, "http://localhost:3000");
   const response = await handler(
     new Request(url, {
