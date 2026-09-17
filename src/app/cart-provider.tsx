@@ -58,6 +58,8 @@ type CartContextValue = {
   remove: (id: string) => void;
   clear: (ids: readonly string[]) => void;
   contains: (id: string) => boolean;
+  /** Re-check prices and availability without changing the cart, e.g. after a checkout conflict. */
+  revalidate: () => void;
   count: number;
 };
 
@@ -158,11 +160,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       remove: (id: string) => commit(removeItem(ids, id)),
       clear: (gone: readonly string[]) => commit(removeItems(ids, gone)),
       contains: (id: string) => hasItem(ids, id),
+      revalidate: () => void refresh(ids),
       // Before the first response, fall back to the raw count so the badge is
       // never wrong by omission.
       count: summary ? summary.availableCount + summary.unavailableCount : countItems(ids),
     }),
-    [ids, summary, loading, error, ready, commit],
+    [ids, summary, loading, error, ready, commit, refresh],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
