@@ -24,7 +24,11 @@ import { REFUND_TERMS } from "@/lib/refund-policy";
 
 type SubmitError = { message: string; unavailable: UnavailableItem[] };
 
-export function CheckoutView() {
+/**
+ * `canPayDeposit` comes from the server shell: signed in with a verified phone
+ * number. The server refuses regardless; this keeps the button honest.
+ */
+export function CheckoutView({ canPayDeposit }: { canPayDeposit: boolean }) {
   const router = useRouter();
   const { summary, loading, ready, clear, revalidate } = useCart();
 
@@ -64,7 +68,7 @@ export function CheckoutView() {
   // Checkout is all or nothing on the server, so an unavailable line blocks it
   // here too rather than letting the buyer find out after pressing pay.
   const blocked = unavailable.length > 0 || available.length === 0;
-  const canPay = accepted && !blocked && !submitting && !loading;
+  const canPay = accepted && canPayDeposit && !blocked && !submitting && !loading;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

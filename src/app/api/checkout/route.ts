@@ -8,6 +8,8 @@
  * `src/lib/checkout.ts`.
  *
  * - 201 with the placed orders
+ * - 401 when nobody is signed in: an order must have an owner
+ * - 403 when the buyer's phone is unverified (AUTH-3), naming the page to fix it
  * - 400 for an empty cart, unaccepted terms or a malformed body
  * - 409 with the unavailable items when any item can no longer be bought, in
  *   which case no order at all was created
@@ -18,14 +20,19 @@
 
 import { NextResponse } from "next/server";
 
-import { getActingBuyer } from "@/lib/acting-buyer";
 import { checkoutRequestSchema, placeOrders } from "@/lib/checkout";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 const NO_STORE = { "cache-control": "no-store" };
 
 export async function POST(request: Request) {
+  // Guard first: session, then AUTH-3's verified-phone requirement, before the
+  // body is read and before anything reaches the database.
+  const guard = await requireUser({ verifiedPhone: true });
+  if (!guard.ok) return guard.response;
+
   let payload: unknown;
 
   try {
@@ -57,8 +64,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const buyer = await getActingBuyer();
-  const result = await placeOrders(buyer.id, parsed.data.itemIds);
+  const result = await placeOrders(guard.user.id, parsed.data.itemIds);
 
   if (!result.ok) {
     return NextResponse.json(

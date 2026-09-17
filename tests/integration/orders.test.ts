@@ -15,6 +15,7 @@ afterAll(async () => {
 });
 
 const { getBuyerOrders, placeOrders } = await import("@/lib/checkout");
+const { getActingBuyer } = await import("@/lib/acting-buyer");
 
 describe("getBuyerOrders", () => {
   it("returns the buyer's orders with reference, deposit, balance and thumbnail", async () => {
@@ -54,6 +55,24 @@ describe("getBuyerOrders", () => {
     const buyer = await makeUser("buyer");
     expect(await getBuyerOrders(buyer.id, [])).toEqual([]);
     expect(await getBuyerOrders(buyer.id, ["never-existed"])).toEqual([]);
+  });
+});
+
+describe("getActingBuyer", () => {
+  it("returns the signed-in user", async () => {
+    const { actAs } = await import("../helpers/session-state");
+    const buyer = await makeUser("buyer", { email: "acting@test.local" });
+
+    actAs(buyer.email);
+    expect((await getActingBuyer())?.id).toBe(buyer.id);
+  });
+
+  it("returns null when nobody is signed in, rather than a seeded fallback", async () => {
+    const { actAs } = await import("../helpers/session-state");
+    await makeUser("buyer", { email: "buyer1@declutter.test" });
+
+    actAs(null);
+    expect(await getActingBuyer()).toBeNull();
   });
 });
 

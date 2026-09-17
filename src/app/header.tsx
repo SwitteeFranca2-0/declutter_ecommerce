@@ -8,11 +8,13 @@
  */
 
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 
 import { useCart } from "./cart-provider";
 
 export function Header() {
   const { count, summary, ready } = useCart();
+  const { data: session, status } = useSession();
   const unavailable = summary?.unavailableCount ?? 0;
 
   return (
@@ -27,8 +29,36 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-4 sm:gap-7">
-          <span className="hidden text-sm text-[#6B6B6B] sm:inline">How it works</span>
+        <nav className="flex items-center gap-3 sm:gap-6">
+          {/* Nothing is rendered while the session is loading, so the markup
+              does not disagree with the server on the first paint. */}
+          {status === "authenticated" && session?.user ? (
+            <span className="flex items-center gap-2 sm:gap-3">
+              {/* User-supplied. React escapes it. */}
+              <span className="hidden max-w-[12ch] truncate text-sm text-[#1F1F1F] sm:inline">
+                {session.user.name ?? session.user.email}
+              </span>
+              <button
+                type="button"
+                onClick={() => void signOut({ callbackUrl: "/" })}
+                className="min-h-11 text-sm text-[#6B6B6B] underline hover:text-[#1F1F1F]"
+              >
+                Sign out
+              </button>
+            </span>
+          ) : status === "unauthenticated" ? (
+            <span className="flex items-center gap-3 sm:gap-4">
+              <Link href="/signin" className="text-sm text-[#1F1F1F] hover:underline">
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="hidden text-sm text-[#1E5F4B] underline sm:inline"
+              >
+                Register
+              </Link>
+            </span>
+          ) : null}
 
           <Link
             href="/cart"
