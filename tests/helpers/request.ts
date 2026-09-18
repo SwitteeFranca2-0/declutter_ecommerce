@@ -41,6 +41,26 @@ export async function get(
   return { status: response.status, body };
 }
 
+/**
+ * POST multipart form data to a route handler.
+ *
+ * A submission carries files, so it is not JSON. Values are appended in the
+ * order given, which is what decides an image's sortOrder.
+ */
+export async function postForm(
+  handler: Handler,
+  path: string,
+  form: FormData,
+  options: RequestOptions = {},
+) {
+  actAs(options.as?.email ?? null);
+  const url = new URL(path, "http://localhost:3000");
+  const response = await handler(new Request(url, { method: "POST", body: form }));
+  const body = await response.json().catch(() => null);
+
+  return { status: response.status, body };
+}
+
 /** POST JSON to a route handler. */
 export async function postJson(
   handler: Handler,

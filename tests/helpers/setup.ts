@@ -6,6 +6,8 @@
  * tables, so getting this wrong would eat the seeded catalogue.
  */
 
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { vi } from "vitest";
 import { config } from "dotenv";
 
@@ -26,6 +28,11 @@ if (testUrl === process.env.DATABASE_URL) {
 }
 
 process.env.DATABASE_URL = testUrl;
+
+// Uploads land in a temporary directory during tests, so a run can never
+// litter public/uploads. Each suite empties it the way resetDb empties tables.
+process.env.UPLOADS_DIR =
+  process.env.UPLOADS_DIR ?? join(tmpdir(), "declutter-test-uploads");
 
 /**
  * Stand in for NextAuth's session lookup.
