@@ -22,11 +22,9 @@ import { randomUUID } from "node:crypto";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-/** Per file. Generous for a phone photograph, small enough to bound the disk. */
-export const MAX_FILE_BYTES = 5 * 1024 * 1024;
+import { MAX_FILE_BYTES, MAX_FILES } from "@/lib/upload-limits";
 
-/** Per submission. More than this is a gallery, not a listing. */
-export const MAX_FILES = 8;
+export { MAX_FILE_BYTES, MAX_FILES } from "@/lib/upload-limits";
 
 /** Where files land. Overridden in tests so a run cannot litter public/uploads. */
 function uploadsDir(): string {
