@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A complete, and Stage B started. A buyer can register, sign in, verify their phone number (simulated), browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. Orders belong to the signed-in account. Seller submission and admin approval are next.
+Stage A complete, Stage B under way. A buyer can register, sign in, verify their phone number (simulated), browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. A seller can offer an item with photographs and follow what happens to it. Admin approval and pricing are next, and until they exist a submitted item stays in review rather than reaching the marketplace.
 
 ## Requirements
 
@@ -62,7 +62,9 @@ npm run typecheck  # tsc --noEmit
 
 Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
 
-Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, passwords reaching the database only as a bcrypt hash, the admin role being unreachable through registration, role and phone-verification guards refusing with 401 and 403 before any write, and that money survives as `Decimal` rather than drifting as a float.
+Uploads in tests go to a temporary directory through `UPLOADS_DIR`, so a test run cannot litter `public/uploads`.
+
+Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, passwords reaching the database only as a bcrypt hash, the admin role being unreachable through registration, role and phone-verification guards refusing with 401 and 403 before any write, a submitted item staying out of the marketplace whatever the request body claims, an upload whose bytes are not an image being refused, and that money survives as `Decimal` rather than drifting as a float.
 
 Route handlers are called directly, with the acting user injected through an `as` option on the request helpers. That keeps every guard, role check and query under test while standing in for the session cookie a browser would carry.
 
@@ -117,7 +119,15 @@ Registration posts the form as JSON and renders the route's own field-level vali
 
 Verification posts either a code, which is accepted whatever it is, or a corrected phone number. The route resolves the caller from the session and updates that user only, so no identifier in the body can point it at another account.
 
-### 5. Thread polling
+### 5. Offering an item
+
+**Built.** `src/app/sell/submission-form.tsx` posts multipart form data to `POST /api/items`.
+
+Photographs are chosen, previewed and reordered in the browser before anything is sent, and the first one becomes the card thumbnail. The submission goes up as one multipart request, and the field-level messages rendered beside the inputs are the route's own validation issues, so the rules shown are the rules enforced.
+
+The route guards on role and phone verification before a byte is written, stores each file under a name the application generates, and decides a file's type by reading its leading bytes rather than trusting what it claims to be. If any file is refused, the ones already written are removed, so a refused submission leaves nothing behind.
+
+### 6. Thread polling
 
 **Stage C.** New messages appear in a thread by polling a JSON route handler.
 
