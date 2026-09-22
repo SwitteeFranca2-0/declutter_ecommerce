@@ -50,6 +50,8 @@ Every seeded account uses the password **`declutter`**.
 
 Sign in at `/signin`. Every seeded account already has a verified phone number, so any of them can pay a deposit straight away.
 
+**To see the whole seller-to-marketplace path**, sign in as `seller1@declutter.test`, offer an item at `/sell`, then sign in as `admin@declutter.test` and open `/admin`. The submission is waiting there. Approving it means rewriting the copy if it needs it and setting a public price above the seller's payout; the item then appears in the catalogue at that price, with the deposit computed from it. Rejecting it sends the seller a reason, which they see on `/sell`.
+
 Registering a new account is the other route in: `/register` asks for an email address, a phone number, a password and a first name. **No identity documents are requested or stored at any point**, which is a data minimisation decision under GDPR Art. 5(1)(c) (PRD §10.3). A new account then verifies its phone number at `/verify-phone`, where any code is accepted because there is no SMS provider. The admin account cannot be registered: it exists only because the seed script wrote it (AUTH-5).
 
 ## Tests
@@ -127,7 +129,17 @@ Photographs are chosen, previewed and reordered in the browser before anything i
 
 The route guards on role and phone verification before a byte is written, stores each file under a name the application generates, and decides a file's type by reading its leading bytes rather than trusting what it claims to be. If any file is refused, the ones already written are removed, so a refused submission leaves nothing behind.
 
-### 6. Thread polling
+### 6. Reviewing a submission
+
+**Built.** `src/app/admin/items/[id]/review-form.tsx` calls `POST /api/admin/items/[id]/review`.
+
+Approving posts the edited title, the edited description and the public price as JSON; rejecting posts a reason. Because it is a `fetch` rather than a form submission, a price the server refuses does not cost the admin the copy they just rewrote: the field message appears beside the price and everything else stays where it was. On success the browser returns to the queue, which the item has now left.
+
+The margin is worked out in the browser as the price is typed, purely so the admin can see what they are setting. Nothing about it is sent and nothing depends on it. The rule itself is enforced only on the server, against `sellerPayoutAmount` read from the row: a price at or below the seller's payout is a `400`, whatever the request claims the payout to be.
+
+The route handler is `src/app/api/admin/items/[id]/review/route.ts`. It guards on the admin role before reading the body, and writes with a conditional `updateMany` that includes the item's current status in its `WHERE` clause, so two admins acting on the same stale queue page cannot both succeed. The loser gets a `409` and the published listing is not overwritten.
+
+### 7. Thread polling
 
 **Stage C.** New messages appear in a thread by polling a JSON route handler.
 
