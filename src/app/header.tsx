@@ -32,6 +32,17 @@ export function Header() {
         <nav className="flex items-center gap-3 sm:gap-6">
           {/* Nothing is rendered while the session is loading, so the markup
               does not disagree with the server on the first paint. */}
+          {/* Role-aware, and only this one link: a buyer is never offered an
+              action they cannot take. */}
+          {status === "authenticated" && session?.user?.role === "seller" && (
+            <Link
+              href="/sell"
+              className="text-sm font-medium text-[#1E5F4B] hover:underline"
+            >
+              Sell an item
+            </Link>
+          )}
+
           {status === "authenticated" && session?.user ? (
             <span className="flex items-center gap-2 sm:gap-3">
               {/* User-supplied. React escapes it. */}
