@@ -11,7 +11,14 @@
 
 import { actAs } from "./session-state";
 
-type Handler = (request: Request) => Promise<Response> | Response;
+/**
+ * A route handler. Dynamic segments arrive in a second argument, and Next 16
+ * hands `params` over as a promise, so the helper wraps whatever a test passes.
+ */
+type Handler = (
+  request: Request,
+  context: { params: Promise<Record<string, string>> },
+) => Promise<Response> | Response;
 
 /**
  * Who the request comes from.
@@ -20,7 +27,15 @@ type Handler = (request: Request) => Promise<Response> | Response;
  * This is the session injection the primary seam was designed around: the
  * handler, its guards and its queries are all the real thing.
  */
-export type RequestOptions = { as?: { email: string } | null };
+export type RequestOptions = {
+  as?: { email: string } | null;
+  /** Dynamic route segments, as the folder names spell them. */
+  params?: Record<string, string>;
+};
+
+function context(options: RequestOptions) {
+  return { params: Promise.resolve(options.params ?? {}) };
+}
 
 /** GET a route handler with an optional query string. */
 export async function get(
@@ -35,7 +50,7 @@ export async function get(
     url.searchParams.set(key, value);
   }
 
-  const response = await handler(new Request(url, { method: "GET" }));
+  const response = await handler(new Request(url, { method: "GET" }), context(options));
   const body = await response.json().catch(() => null);
 
   return { status: response.status, body };
@@ -55,7 +70,10 @@ export async function postForm(
 ) {
   actAs(options.as?.email ?? null);
   const url = new URL(path, "http://localhost:3000");
-  const response = await handler(new Request(url, { method: "POST", body: form }));
+  const response = await handler(
+    new Request(url, { method: "POST", body: form }),
+    context(options),
+  );
   const body = await response.json().catch(() => null);
 
   return { status: response.status, body };
@@ -76,6 +94,7 @@ export async function postJson(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
     }),
+    context(options),
   );
   const body = await response.json().catch(() => null);
 
