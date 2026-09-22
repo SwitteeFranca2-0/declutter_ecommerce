@@ -103,7 +103,9 @@ export async function reviewSubmission(
     };
   }
 
-  const data: Prisma.ItemUpdateManyMutationInput = { approvedById: adminId };
+  // Unchecked, because `approvedById` is a foreign key and the checked input
+  // would only accept it as a nested `approvedBy: { connect: ... }`.
+  const data: Prisma.ItemUncheckedUpdateManyInput = { approvedById: adminId };
 
   if (input.decision === "approve") {
     const price = new Prisma.Decimal(input.listedPrice);
