@@ -159,3 +159,100 @@ export async function reviewSubmission(
     },
   };
 }
+
+/** A row in the admin's queue: enough to choose what to open next. */
+export type QueueRow = {
+  id: string;
+  title: string;
+  category: string;
+  condition: string;
+  requestedPayout: string;
+  sellerName: string;
+  thumbnail: string | null;
+  submittedAt: string;
+};
+
+/**
+ * Everything awaiting a decision, longest wait first. ADMIN-1.
+ *
+ * Oldest first is a fairness rule, not a display preference: a seller who
+ * submitted a week ago should not wait behind one who submitted this morning.
+ *
+ * The seller and the thumbnail come back in the same query as the item. A
+ * queue of twenty rows fetching each separately is twenty extra round trips,
+ * which is the `data-n-plus-one` rule the catalogue already follows.
+ */
+export async function getReviewQueue(): Promise<QueueRow[]> {
+  const items = await prisma.item.findMany({
+    where: { status: "pending_review" },
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      condition: true,
+      sellerPayoutAmount: true,
+      createdAt: true,
+      seller: { select: { firstName: true } },
+      images: { select: { url: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+    },
+  });
+
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    category: item.category,
+    condition: item.condition,
+    requestedPayout: item.sellerPayoutAmount.toString(),
+    sellerName: item.seller.firstName,
+    thumbnail: item.images[0]?.url ?? null,
+    submittedAt: item.createdAt.toISOString(),
+  }));
+}
+
+/** The full submission, as the review page shows it. */
+export type SubmissionForReview = QueueRow & {
+  description: string;
+  images: string[];
+};
+
+/**
+ * One submission, or null.
+ *
+ * Scoped to `pending_review`, so a decided item cannot be reopened by editing
+ * the URL. That keeps the terminal statuses terminal without the review page
+ * having to reason about them.
+ */
+export async function getSubmissionForReview(
+  itemId: string,
+): Promise<SubmissionForReview | null> {
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, status: "pending_review" },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      category: true,
+      condition: true,
+      sellerPayoutAmount: true,
+      createdAt: true,
+      seller: { select: { firstName: true } },
+      images: { select: { url: true }, orderBy: { sortOrder: "asc" } },
+    },
+  });
+
+  if (!item) return null;
+
+  return {
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    category: item.category,
+    condition: item.condition,
+    requestedPayout: item.sellerPayoutAmount.toString(),
+    sellerName: item.seller.firstName,
+    thumbnail: item.images[0]?.url ?? null,
+    images: item.images.map((image) => image.url),
+    submittedAt: item.createdAt.toISOString(),
+  };
+}
