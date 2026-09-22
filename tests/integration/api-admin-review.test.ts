@@ -10,6 +10,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { POST } from "@/app/api/admin/items/[id]/review/route";
+import { getListedItems } from "@/lib/items";
 import { makeItem, makeUser, resetDb, testDb } from "../helpers/db";
 import { postJson } from "../helpers/request";
 
@@ -131,6 +132,43 @@ describe("approving a submission", () => {
     );
 
     expect(status).toBe(400);
+  });
+});
+
+describe("what approval does to the marketplace", () => {
+  it("puts the item in the catalogue at the admin's price, with the deposit derived from it", async () => {
+    const item = await makeItem(seller.id, {
+      status: "pending_review",
+      payout: "40000.00",
+      price: "40000.00",
+      category: "furniture",
+    });
+
+    // Not on the marketplace before the decision.
+    expect(await getListedItems({ sort: "newest" })).toEqual([]);
+
+    await review(
+      item.id,
+      { decision: "approve", title: "Oak dining table", description: item.description, listedPrice: "60000" },
+      admin,
+    );
+
+    const listed = await getListedItems({ sort: "newest" });
+
+    expect(listed).toHaveLength(1);
+    expect(listed[0].title).toBe("Oak dining table");
+    // BUY-3: the price a buyer sees is the one the admin set, and the deposit
+    // is 10% of it rather than of anything the seller asked for.
+    expect(listed[0].listedPrice).toBe("60000");
+    expect(listed[0].deposit).toBe("6000");
+  });
+
+  it("leaves a rejected item off the marketplace", async () => {
+    const item = await makeItem(seller.id, { status: "pending_review" });
+
+    await review(item.id, { decision: "reject", reason: "Photographs are too dark to judge." }, admin);
+
+    expect(await getListedItems({ sort: "newest" })).toEqual([]);
   });
 });
 
