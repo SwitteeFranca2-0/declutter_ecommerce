@@ -32,14 +32,24 @@ export function Header() {
         <nav className="flex items-center gap-3 sm:gap-6">
           {/* Nothing is rendered while the session is loading, so the markup
               does not disagree with the server on the first paint. */}
-          {/* Role-aware, and only this one link: a buyer is never offered an
-              action they cannot take. */}
+          {/* Role-aware: an account is never offered an action it cannot
+              take. Hiding the link is not the access control, though — both
+              destinations guard server-side as well (AUTH-6). */}
           {status === "authenticated" && session?.user?.role === "seller" && (
             <Link
               href="/sell"
               className="text-sm font-medium text-[#1E5F4B] hover:underline"
             >
               Sell an item
+            </Link>
+          )}
+
+          {status === "authenticated" && session?.user?.role === "admin" && (
+            <Link
+              href="/admin"
+              className="text-sm font-medium text-[#1E5F4B] hover:underline"
+            >
+              Review queue
             </Link>
           )}
 
