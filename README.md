@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A complete, slices 01 to 06. A buyer can browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows, all against a seeded PostgreSQL database. Stage B (sign-in, seller submission, admin approval) is next.
+Stage A complete, and Stage B started. A buyer can register, sign in, verify their phone number (simulated), browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. Orders belong to the signed-in account. Seller submission and admin approval are next.
 
 ## Requirements
 
@@ -48,7 +48,9 @@ Every seeded account uses the password **`declutter`**.
 | Buyer | `buyer1@declutter.test` |
 | Buyer | `buyer2@declutter.test` |
 
-Sign-in arrives in Stage B. Until then, checkout acts as `buyer1` through a single server-side function, so the schema never needs a nullable buyer.
+Sign in at `/signin`. Every seeded account already has a verified phone number, so any of them can pay a deposit straight away.
+
+Registering a new account is the other route in: `/register` asks for an email address, a phone number, a password and a first name. **No identity documents are requested or stored at any point**, which is a data minimisation decision under GDPR Art. 5(1)(c) (PRD §10.3). A new account then verifies its phone number at `/verify-phone`, where any code is accepted because there is no SMS provider. The admin account cannot be registered: it exists only because the seed script wrote it (AUTH-5).
 
 ## Tests
 
@@ -60,7 +62,9 @@ npm run typecheck  # tsc --noEmit
 
 Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
 
-Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, and that money survives as `Decimal` rather than drifting as a float.
+Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, passwords reaching the database only as a bcrypt hash, the admin role being unreachable through registration, role and phone-verification guards refusing with 401 and 403 before any write, and that money survives as `Decimal` rather than drifting as a float.
+
+Route handlers are called directly, with the acting user injected through an `as` option on the request helpers. That keeps every guard, role check and query under test while standing in for the session cookie a browser would carry.
 
 ## Where AJAX is used
 
@@ -105,7 +109,15 @@ The request body is `{ itemIds, acceptedTerms: true }` and nothing more. No pric
 
 Checkout runs in a single transaction and moves each item from `listed` to `on_hold` for 72 hours. Two buyers paying for the same item at the same moment get exactly one order and one `409`, guaranteed by the partial unique index rather than by application code. Payment is simulated and the page says so above the pay button.
 
-### 4. Thread polling
+### 4. Registration and phone verification
+
+**Built.** `src/app/register/register-form.tsx` calls `POST /api/register`, and `src/app/verify-phone/verify-phone-form.tsx` calls `POST /api/verify-phone`.
+
+Registration posts the form as JSON and renders the route's own field-level validation messages beside the inputs, so the rules shown are the rules the server enforces rather than a second copy that can drift. On success the browser signs the new account in and moves to verification without the password being typed twice.
+
+Verification posts either a code, which is accepted whatever it is, or a corrected phone number. The route resolves the caller from the session and updates that user only, so no identifier in the body can point it at another account.
+
+### 5. Thread polling
 
 **Stage C.** New messages appear in a thread by polling a JSON route handler.
 
@@ -132,7 +144,7 @@ This section is updated in the same slice that adds each interaction.
 | Language | TypeScript, strict | No `any` in production code |
 | Database | PostgreSQL, local | No hosted service, no credential an examiner lacks |
 | ORM | Prisma | Typed queries, committed migrations, seed script |
-| Auth | NextAuth, credentials only | No OAuth provider, so no third-party keys |
+| Auth | NextAuth, credentials provider with JWT cookie sessions | No OAuth provider, so no third-party keys, and no session table |
 | Styling | Tailwind CSS | Responsive marketplace grid |
 | Client scripting | TypeScript and the Fetch API | The assessed AJAX work |
 | Maps | Leaflet with OpenStreetMap | No API key, no billing |

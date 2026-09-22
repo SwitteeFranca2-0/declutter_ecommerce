@@ -2,29 +2,19 @@
  * Who is buying.
  *
  * `Order.buyerId` is not nullable and this data model has no concept of a guest
- * order. Rather than weaken the schema for a temporary gap, every call site asks
- * this one function.
+ * order. Rather than weaken the schema, every call site asks this one function.
  *
- * Stage A returns the seeded demo buyer, because authentication does not exist
- * yet. Stage B changes the body of this function to read the NextAuth session.
- * No call site changes. See issue #2.
+ * Stage A returned a seeded demo buyer here, because authentication did not
+ * exist. Since slice 07 it returns the signed-in user, and the fallback is
+ * gone: a silent default would let an unauthenticated checkout succeed and
+ * record the order against somebody else. Callers that need a refusal rather
+ * than a null use `requireUser` instead.
  */
 
-import { prisma } from "@/lib/prisma";
+import type { User } from "@prisma/client";
 
-/** The seeded account checkout acts as until authentication lands. */
-const STAGE_A_DEMO_BUYER_EMAIL = "buyer1@declutter.test";
+import { getSessionUser } from "@/lib/session";
 
-export async function getActingBuyer() {
-  const buyer = await prisma.user.findUnique({
-    where: { email: STAGE_A_DEMO_BUYER_EMAIL },
-  });
-
-  if (!buyer) {
-    throw new Error(
-      `No acting buyer. Run 'npm run db:seed' to provision ${STAGE_A_DEMO_BUYER_EMAIL}.`,
-    );
-  }
-
-  return buyer;
+export async function getActingBuyer(): Promise<User | null> {
+  return getSessionUser();
 }

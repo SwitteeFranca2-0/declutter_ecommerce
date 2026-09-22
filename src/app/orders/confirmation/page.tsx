@@ -47,7 +47,9 @@ const HOLD_DATE = new Intl.DateTimeFormat("en-NG", {
 export default async function ConfirmationPage({ searchParams }: PageProps) {
   const ids = parseIds((await searchParams).ids);
   const buyer = await getActingBuyer();
-  const orders = await getBuyerOrders(buyer.id, ids);
+  // Signed out there is nobody to scope the read to, which is the same outcome
+  // as an id that is not theirs: nothing to show.
+  const orders = buyer ? await getBuyerOrders(buyer.id, ids) : [];
 
   if (orders.length === 0) {
     return (

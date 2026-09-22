@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./session-provider";
 import { CartProvider } from "./cart-provider";
 import { Header } from "./header";
 
@@ -36,10 +37,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-full flex flex-col bg-white">
         {/* One provider for the whole app: the header badge and the cart page
             read the same state, so they can never disagree. */}
-        <CartProvider>
-          <Header />
-          <div className="flex-1">{children}</div>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Header />
+            <div className="flex-1">{children}</div>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

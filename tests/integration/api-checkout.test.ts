@@ -19,11 +19,23 @@ afterAll(async () => {
 
 const { POST } = await import("@/app/api/checkout/route");
 
-/** The seeded account checkout acts as until Stage B. See `src/lib/acting-buyer.ts`. */
-const demoBuyer = () => makeUser("buyer", { email: "buyer1@declutter.test" });
+/**
+ * The buyer every case acts as.
+ *
+ * Since slice 07 the order belongs to whoever is signed in, so each request
+ * carries a session. `makeUser` verifies the phone by default, which AUTH-3
+ * requires before a deposit.
+ */
+const BUYER_EMAIL = "signed.in.buyer@test.local";
+const demoBuyer = () => makeUser("buyer", { email: BUYER_EMAIL });
 
-const checkout = (payload: unknown) => postJson(POST, "/api/checkout", payload);
-const accepted = (itemIds: unknown) => checkout({ itemIds, acceptedTerms: true });
+type As = { as: { email: string } | null };
+const AS_BUYER: As = { as: { email: BUYER_EMAIL } };
+
+const checkout = (payload: unknown, options: As = AS_BUYER) =>
+  postJson(POST, "/api/checkout", payload, options);
+const accepted = (itemIds: unknown, options: As = AS_BUYER) =>
+  checkout({ itemIds, acceptedTerms: true }, options);
 
 const HOUR = 3600 * 1000;
 
@@ -249,6 +261,59 @@ describe("one active order per item", () => {
   });
 });
 
+describe("who is buying, AUTH-4 and AUTH-3", () => {
+  it("records the order against the signed-in buyer, not a fixed account", async () => {
+    const buyer = await demoBuyer();
+    const other = await makeUser("buyer", { email: "someone.else@test.local" });
+    const seller = await makeUser("seller");
+    const item = await makeItem(seller.id);
+
+    await accepted([item.id]);
+
+    const order = await testDb.order.findFirstOrThrow({ where: { itemId: item.id } });
+    expect(order.buyerId).toBe(buyer.id);
+    expect(order.buyerId).not.toBe(other.id);
+  });
+
+  it("refuses a signed-out checkout with 401 and creates no order", async () => {
+    await demoBuyer();
+    const seller = await makeUser("seller");
+    const item = await makeItem(seller.id);
+
+    const { status } = await accepted([item.id], { as: null });
+
+    expect(status).toBe(401);
+    expect(await testDb.order.count()).toBe(0);
+    const after = await testDb.item.findUniqueOrThrow({ where: { id: item.id } });
+    expect(after.status).toBe("listed");
+  });
+
+  it("refuses an unverified buyer with 403 and points at verification", async () => {
+    const buyer = await makeUser("buyer", {
+      email: "unverified@test.local",
+      phoneVerified: false,
+    });
+    const seller = await makeUser("seller");
+    const item = await makeItem(seller.id);
+
+    const { status, body } = await accepted([item.id], { as: { email: buyer.email } });
+
+    expect(status).toBe(403);
+    expect(body.verifyPath).toBe("/verify-phone");
+    expect(await testDb.order.count()).toBe(0);
+  });
+
+  it("lets a seller buy something, since the roles are not exclusive", async () => {
+    const seller = await makeUser("seller", { email: "seller.as.buyer@test.local" });
+    const other = await makeUser("seller");
+    const item = await makeItem(other.id);
+
+    const { status } = await accepted([item.id], { as: { email: seller.email } });
+
+    expect(status).toBe(201);
+  });
+});
+
 describe("validation at the boundary", () => {
   it("refuses an empty cart with an explanation and creates no order", async () => {
     await demoBuyer();
@@ -273,10 +338,10 @@ describe("validation at the boundary", () => {
   });
 
   it("rejects a body that is not JSON", async () => {
-    const response = await POST(
-      new Request("http://localhost/api/checkout", { method: "POST", body: "nonsense" }),
-    );
-    expect(response.status).toBe(400);
+    await demoBuyer();
+    // The guard runs before the body is read, so the session still matters.
+    const { status } = await postJson(POST, "/api/checkout", undefined, AS_BUYER);
+    expect(status).toBe(400);
   });
 
   it("rejects identifiers that are not strings, and a cart over the cap", async () => {

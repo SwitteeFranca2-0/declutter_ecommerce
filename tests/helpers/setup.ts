@@ -6,6 +6,7 @@
  * tables, so getting this wrong would eat the seeded catalogue.
  */
 
+import { vi } from "vitest";
 import { config } from "dotenv";
 
 config();
@@ -25,3 +26,20 @@ if (testUrl === process.env.DATABASE_URL) {
 }
 
 process.env.DATABASE_URL = testUrl;
+
+/**
+ * Stand in for NextAuth's session lookup.
+ *
+ * Handlers are invoked directly at the route seam, so there is no cookie to
+ * carry a session. `getServerSession` is the single framework call the guards
+ * make, so replacing just that keeps every guard, role check and phone check
+ * under test. The acting user comes from `tests/helpers/session-state.ts`.
+ */
+vi.mock("next-auth", async () => {
+  const { sessionState } = await import("./session-state");
+
+  return {
+    getServerSession: async () =>
+      sessionState.current ? { user: { email: sessionState.current.email } } : null,
+  };
+});
