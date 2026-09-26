@@ -16,11 +16,11 @@ export default async function Home() {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-12">
-      <header className="flex flex-col gap-1.5 border-b border-[#B4B4B4] pb-5">
-        <h1 className="text-2xl font-semibold tracking-[-0.015em] text-[#1F1F1F] sm:text-[26px]">
+      <header className="flex flex-col gap-1.5 border-b border-[#DDDEE9] pb-5">
+        <h1 className="text-2xl font-semibold tracking-[-0.015em] text-[#12142B] sm:text-[26px]">
           Marketplace
         </h1>
-        <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+        <p className="text-[13px] leading-relaxed text-[#6B6E84]">
           Every item is checked and priced by Declutter before it appears here. A 10% deposit
           reserves an item while you arrange collection.
         </p>
