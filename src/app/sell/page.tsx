@@ -11,6 +11,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getSellerSubmissions } from "@/lib/listings";
+import { getSellerThreads } from "@/lib/relay-lists";
+import { ThreadList } from "@/app/threads/thread-list";
 import { getSessionUser } from "@/lib/session";
 import { SubmissionForm } from "./submission-form";
 
@@ -43,6 +45,7 @@ export default async function SellPage() {
   }
 
   const submissions = user.phoneVerified ? await getSellerSubmissions(user.id) : [];
+  const threads = user.phoneVerified ? await getSellerThreads(user.id) : [];
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
@@ -90,6 +93,20 @@ export default async function SellPage() {
               Your submissions
             </h2>
             <SubmissionList submissions={submissions} />
+          </section>
+
+          <section aria-labelledby="enquiries-heading" className="mt-10">
+            <h2 id="enquiries-heading" className="text-base font-semibold text-[#1F1F1F]">
+              Questions about your items
+            </h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-[#6B6B6B]">
+              Buyers ask through Declutter. You answer the question without being told who
+              asked it.
+            </p>
+            <ThreadList
+              threads={threads}
+              emptyMessage="No questions yet."
+            />
           </section>
         </>
       )}

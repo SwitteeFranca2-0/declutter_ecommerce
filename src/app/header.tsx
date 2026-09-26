@@ -35,6 +35,15 @@ export function Header() {
           {/* Role-aware: an account is never offered an action it cannot
               take. Hiding the link is not the access control, though — both
               destinations guard server-side as well (AUTH-6). */}
+          {status === "authenticated" && session?.user?.role === "buyer" && (
+            <Link
+              href="/enquiries"
+              className="hidden text-sm text-[#1F1F1F] hover:underline sm:inline"
+            >
+              Enquiries
+            </Link>
+          )}
+
           {status === "authenticated" && session?.user?.role === "seller" && (
             <Link
               href="/sell"

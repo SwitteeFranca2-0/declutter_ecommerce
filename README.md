@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A complete, Stage B under way. A buyer can register, sign in, verify their phone number (simulated), browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. A seller can offer an item with photographs and follow what happens to it. Admin approval and pricing are next, and until they exist a submitted item stays in review rather than reaching the marketplace.
+Stage A and Stage B complete, Stage C under way. A buyer can register, sign in, verify a phone number (simulated), browse and filter the marketplace, open an item, ask the seller a question without revealing who they are, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. A seller offers items and answers questions without learning who asked. The admin prices and publishes listings, and decides what is relayed between the two. The deposit, meetup map, PIN handover and payout are next.
 
 ## Requirements
 

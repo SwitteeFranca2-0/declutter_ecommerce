@@ -13,10 +13,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getListedItem } from "@/lib/items";
+import { getSessionUser } from "@/lib/session";
 import { formatNaira } from "@/lib/pricing";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
 import { Gallery } from "./gallery";
 import { AddToCart } from "./add-to-cart";
+import { AskQuestion } from "./ask-question";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ItemDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const item = await getListedItem(id);
+  const viewer = await getSessionUser();
 
   // Null covers both "no such item" and "no longer listed". The buyer sees the
   // same page either way, so the difference cannot be used to discover which
@@ -134,6 +137,19 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
           </div>
 
           <AddToCart itemId={item.id} />
+
+          {/* BUY-4: a question costs nothing and reveals nothing. */}
+          <div className="flex flex-col gap-2.5 border-t border-[#E8E8E8] pt-4">
+            <h2 className="text-[15px] font-semibold text-[#1F1F1F]">
+              Not sure? Ask before you commit
+            </h2>
+            <AskQuestion
+              itemId={item.id}
+              canAsk={viewer?.role === "buyer"}
+              signedIn={Boolean(viewer)}
+              verified={Boolean(viewer?.phoneVerified)}
+            />
+          </div>
 
           <div className="flex items-start gap-2.5 rounded border border-dashed border-[#B4B4B4] p-3.5">
             <svg
