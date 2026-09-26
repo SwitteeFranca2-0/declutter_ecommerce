@@ -81,7 +81,7 @@ export type RelayThread = {
 
 export type ThreadResult =
   | { ok: true; thread: RelayThread }
-  | { ok: false; reason: "not_found" | "conflict" | "item_unavailable" };
+  | { ok: false; reason: "not_found" | "conflict" | "item_unavailable" | "locked" };
 
 type Viewer = Pick<User, "id" | "role">;
 
@@ -147,11 +147,16 @@ function serialise(thread: LoadedThread, viewer: Viewer, after?: string): RelayT
           ? message.sender.firstName
           : message.senderId === viewer.id
             ? "you"
-            : message.sender.role === "buyer"
-              ? "a buyer"
-              : message.sender.role === "seller"
-                ? "the seller"
-                : "Declutter",
+            : // A direct thread exists because a deposit was paid, so the two
+              // parties are no longer strangers and a first name is right.
+              // A relay thread names nobody.
+              thread.threadType === "direct"
+              ? message.sender.firstName
+              : message.sender.role === "buyer"
+                ? "a buyer"
+                : message.sender.role === "seller"
+                  ? "the seller"
+                  : "Declutter",
       mine: message.senderId === viewer.id,
       ...(viewer.role === "admin" ? { visibleTo: message.visibleTo } : {}),
       createdAt: message.createdAt.toISOString(),
@@ -190,7 +195,11 @@ export async function postMessage(
     const thread = await loadThread(input.threadId);
     if (!thread || !belongsTo(thread, sender)) return { ok: false, reason: "not_found" };
 
-    await writeMessage(thread.id, sender, input.body);
+    // A locked thread keeps its history and takes nothing new: a relay closed
+    // because the conversation moved on, or a completed handover.
+    if (thread.status === "locked") return { ok: false, reason: "locked" };
+
+    await writeMessage(thread.id, sender, input.body, thread.threadType);
     return reload(thread.id, sender);
   }
 
@@ -254,19 +263,32 @@ export async function postMessage(
   }
 }
 
-async function writeMessage(threadId: string, sender: Viewer, text: string) {
+async function writeMessage(
+  threadId: string,
+  sender: Viewer,
+  text: string,
+  threadType: "relay" | "direct" = "relay",
+) {
   await prisma.message.create({
     data: {
       threadId,
       senderId: sender.id,
       body: text,
-      // Addressed by role, never by the request.
+      // Addressed by the server from the thread type and the sender's role,
+      // never from the request.
+      //
+      // A direct thread exists because a deposit was paid, so its messages are
+      // visible to both parties at once: the two are committed to a handover
+      // and queuing their messages for review would obstruct rather than
+      // mediate. The admin still reads everything (MSG-7).
       visibleTo:
-        sender.role === "buyer"
-          ? INITIAL_VISIBILITY.buyer
-          : sender.role === "seller"
-            ? INITIAL_VISIBILITY.seller
-            : "both",
+        threadType === "direct"
+          ? "both"
+          : sender.role === "buyer"
+            ? INITIAL_VISIBILITY.buyer
+            : sender.role === "seller"
+              ? INITIAL_VISIBILITY.seller
+              : "both",
     },
   });
 }
