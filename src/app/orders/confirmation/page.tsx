@@ -178,9 +178,31 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
         </ul>
       </section>
 
+      {/* BUY-8 and MSG-3: the seller's details and a direct conversation are
+          waiting on each order now that a deposit has been recorded. */}
+      <div className="mt-8 flex flex-col gap-3 rounded border border-[#1E5F4B] bg-[#F4F8F6] p-4">
+        <h2 className="text-[15px] font-semibold text-[#1F1F1F]">What happens next</h2>
+        <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+          The seller&rsquo;s name and phone number are now on your order, and a direct
+          conversation is open for arranging collection. Declutter holds your deposit until
+          the handover.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {orders.map((order) => (
+            <Link
+              key={order.id}
+              href={`/orders/${order.id}`}
+              className="flex h-11 items-center justify-center rounded bg-[#1E5F4B] px-5 text-[13px] font-semibold text-white"
+            >
+              {orders.length === 1 ? "Open your order" : order.reference}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       <Link
         href="/"
-        className="mt-8 inline-flex min-h-11 items-center text-sm text-[#1E5F4B] hover:underline"
+        className="mt-6 inline-flex min-h-11 items-center text-sm text-[#1E5F4B] hover:underline"
       >
         Back to the marketplace
       </Link>
