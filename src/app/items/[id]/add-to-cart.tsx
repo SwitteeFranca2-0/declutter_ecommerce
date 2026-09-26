@@ -31,19 +31,19 @@ export function AddToCart({ itemId }: { itemId: string }) {
   if (inCart) {
     return (
       <div className="flex flex-col gap-2.5">
-        <div className="flex h-12 items-center justify-center gap-2 rounded border border-[#1E5F4B] bg-[#F4F8F6]">
+        <div className="flex h-12 items-center justify-center gap-2 rounded border border-[#2A2D64] bg-[#EDEEF6]">
           <svg
             width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="#1E5F4B" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+            stroke="#2A2D64" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
             aria-hidden="true"
           >
             <path d="m5 12 5 5L19 7" />
           </svg>
-          <span className="text-[15px] font-semibold text-[#1E5F4B]">In your cart</span>
+          <span className="text-[15px] font-semibold text-[#2A2D64]">In your cart</span>
         </div>
         <Link
           href="/cart"
-          className="flex h-12 items-center justify-center rounded border border-[#B4B4B4] text-[15px] font-medium text-[#1F1F1F] hover:border-[#6B6B6B]"
+          className="flex h-12 items-center justify-center rounded-lg border border-[#DDDEE9] bg-white text-[15px] font-medium text-[#12142B] hover:border-[#6B6E84]"
         >
           Go to cart
         </Link>
@@ -57,12 +57,12 @@ export function AddToCart({ itemId }: { itemId: string }) {
         type="button"
         onClick={handleAdd}
         disabled={!ready}
-        className="flex h-12 items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-12 items-center justify-center rounded bg-[#E8A33D] text-[15px] font-semibold text-[#12142B] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Add to cart
       </button>
       {/* Announced to screen readers as well as shown. */}
-      <p aria-live="polite" className="min-h-4 text-center text-xs text-[#6B6B6B]">
+      <p aria-live="polite" className="min-h-4 text-center text-xs text-[#6B6E84]">
         {justAdded ? "Added to your cart" : ""}
       </p>
     </div>

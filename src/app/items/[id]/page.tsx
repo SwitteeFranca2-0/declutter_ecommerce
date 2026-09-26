@@ -69,7 +69,7 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-12">
       <Link
         href={backHref}
-        className="inline-flex items-center gap-2 text-sm text-[#1E5F4B] hover:underline"
+        className="inline-flex items-center gap-2 text-sm text-[#2A2D64] hover:underline"
       >
         <svg
           width="16"
@@ -95,39 +95,39 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
         <div className="flex w-full flex-col gap-5">
           <div className="flex flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#6B6B6B]">
+              <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#6B6E84]">
                 {CATEGORY_LABELS[item.category] ?? item.category}
               </span>
-              <span className="rounded-[3px] border border-[#B4B4B4] px-[7px] py-0.5 text-[10px] text-[#6B6B6B]">
+              <span className="rounded-[3px] border border-[#DDDEE9] px-[7px] py-0.5 text-[10px] text-[#6B6E84]">
                 {CONDITION_LABELS[item.condition] ?? item.condition}
               </span>
             </div>
 
             {/* User-supplied. React escapes it; never dangerouslySetInnerHTML. */}
-            <h1 className="text-2xl font-semibold leading-tight tracking-[-0.015em] text-[#1F1F1F]">
+            <h1 className="text-2xl font-semibold leading-tight tracking-[-0.015em] text-[#12142B]">
               {item.title}
             </h1>
 
-            <p className="text-3xl font-semibold tracking-[-0.02em] text-[#1F1F1F]">
+            <p className="text-3xl font-semibold tracking-[-0.02em] text-[#12142B]">
               {formatNaira(item.listedPrice)}
             </p>
           </div>
 
           {/* What the buyer actually pays today, before any commitment. */}
-          <div className="flex flex-col gap-2.5 rounded border border-[#1E5F4B] bg-[#F4F8F6] p-4">
+          <div className="flex flex-col gap-2.5 rounded-lg border border-[#2A2D64] bg-[#EDEEF6] p-4">
             <div className="flex items-baseline justify-between gap-4">
-              <span className="text-sm font-semibold text-[#1F1F1F]">Pay today to reserve</span>
-              <span className="text-base font-semibold text-[#1F1F1F]">
+              <span className="text-sm font-semibold text-[#12142B]">Pay today to reserve</span>
+              <span className="text-base font-semibold text-[#12142B]">
                 {formatNaira(item.deposit)}
               </span>
             </div>
             <div className="flex items-baseline justify-between gap-4">
-              <span className="text-[13px] text-[#6B6B6B]">Balance on collection</span>
-              <span className="font-mono text-[13px] text-[#6B6B6B]">
+              <span className="text-[13px] text-[#6B6E84]">Balance on collection</span>
+              <span className="font-mono text-[13px] text-[#6B6E84]">
                 {formatNaira(item.balance)}
               </span>
             </div>
-            <p className="text-xs leading-relaxed text-[#6B6B6B]">
+            <p className="text-xs leading-relaxed text-[#6B6E84]">
               A 10% deposit holds this item for {HOLD_DURATION_HOURS} hours. Refund terms are
               shown in full before you pay.
             </p>
@@ -135,13 +135,13 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
 
           <AddToCart itemId={item.id} />
 
-          <div className="flex items-start gap-2.5 rounded border border-dashed border-[#B4B4B4] p-3.5">
+          <div className="flex items-start gap-2.5 rounded border border-dashed border-[#DDDEE9] p-3.5">
             <svg
               width="18"
               height="18"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#6B6B6B"
+              stroke="#6B6E84"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -150,17 +150,17 @@ export default async function ItemDetailPage({ params, searchParams }: PageProps
             >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <p className="text-xs leading-relaxed text-[#6B6B6B]">
+            <p className="text-xs leading-relaxed text-[#6B6E84]">
               Declutter holds your payment until you collect. The seller&rsquo;s identity stays
               hidden until a deposit is placed.
             </p>
           </div>
 
           <div className="flex flex-col gap-2.5 pt-1">
-            <h2 className="text-[15px] font-semibold text-[#1F1F1F]">Description</h2>
+            <h2 className="text-[15px] font-semibold text-[#12142B]">Description</h2>
             {/* whitespace-pre-line keeps the seller's paragraphs without
                 interpreting anything in their text as markup. */}
-            <p className="whitespace-pre-line text-sm leading-relaxed text-[#1F1F1F]">
+            <p className="whitespace-pre-line text-sm leading-relaxed text-[#12142B]">
               {item.description}
             </p>
           </div>
