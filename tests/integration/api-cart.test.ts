@@ -43,6 +43,28 @@ describe("an empty cart", () => {
   });
 });
 
+describe("a duplicated identifier", () => {
+  /**
+   * `src/lib/cart.ts` makes a duplicate impossible from the interface: adding
+   * an item already in the cart is a no-op, and reading storage dedupes. So
+   * this only arrives from a crafted request — but the boundary should hold the
+   * same guarantee the client does, because a second line for one item would
+   * double the deposit total and imply the buyer could purchase it twice.
+   */
+  it("collapses to one line and does not double the totals", async () => {
+    const seller = await makeUser("seller");
+    const item = await makeItem(seller.id, { price: "50000.00" });
+
+    const { status, body } = await cart([item.id, item.id, item.id]);
+
+    expect(status).toBe(200);
+    expect(body.lines).toHaveLength(1);
+    expect(body.availableCount).toBe(1);
+    expect(body.priceTotal).toBe("50000");
+    expect(body.depositTotal).toBe("5000");
+  });
+});
+
 describe("prices are read fresh", () => {
   it("returns the current price, not the one from when the item was added", async () => {
     const seller = await makeUser("seller");
