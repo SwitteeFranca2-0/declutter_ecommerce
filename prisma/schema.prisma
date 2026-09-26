@@ -102,6 +102,7 @@ model User {
   items           Item[]    @relation("SellerItems")
   approvedItems   Item[]    @relation("ApprovedByAdmin")
   orders          Order[]
+  threads         Thread[]  @relation("BuyerThreads")
   messages        Message[]
   payoutsRecorded Payout[]
 
@@ -191,6 +192,17 @@ model Thread {
   id           String       @id @default(cuid())
   itemId       String
   orderId      String?
+
+  // The buyer this conversation belongs to. Nullable, because the schema must
+  // keep admitting a thread with no single buyer, but written for both thread
+  // types: a relay thread is owned by whoever asked, and a direct thread copies
+  // its order's buyer so "threads this person can see" stays one predicate.
+  //
+  // One relay thread per buyer per item is enforced by a partial unique index
+  // over threadType = 'relay', which Prisma cannot express: see the migration.
+  // ADR-0002.
+  buyerId      String?
+
   threadType   ThreadType
   status       ThreadStatus @default(open)
   lockedReason String?
@@ -199,10 +211,12 @@ model Thread {
 
   item     Item      @relation(fields: [itemId], references: [id])
   order    Order?    @relation(fields: [orderId], references: [id])
+  buyer    User?     @relation("BuyerThreads", fields: [buyerId], references: [id])
   messages Message[]
 
   @@index([itemId])
   @@index([orderId])
+  @@index([buyerId])
   @@map("threads")
 }
 
