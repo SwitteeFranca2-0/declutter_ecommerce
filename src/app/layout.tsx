@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white">
+      <body className="min-h-full flex flex-col bg-[#F4F4F8]">
         {/* One provider for the whole app: the header badge and the cart page
             read the same state, so they can never disagree. */}
         <CartProvider>

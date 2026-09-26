@@ -36,11 +36,11 @@ export function CheckoutView() {
   // Clearing the cart re-renders before navigation completes; without this the
   // buyer would glimpse "Your cart is empty" right after paying.
   if (placed) {
-    return <p className="mt-8 text-sm text-[#6B6B6B]">Deposit recorded. Loading your confirmation…</p>;
+    return <p className="mt-8 text-sm text-[#6B6E84]">Deposit recorded. Loading your confirmation…</p>;
   }
 
   if (!ready || (!summary && loading)) {
-    return <p className="mt-8 text-sm text-[#6B6B6B]">Loading your cart…</p>;
+    return <p className="mt-8 text-sm text-[#6B6E84]">Loading your cart…</p>;
   }
 
   const lines = summary?.lines ?? [];
@@ -49,12 +49,12 @@ export function CheckoutView() {
 
   if (lines.length === 0) {
     return (
-      <div className="mt-8 rounded border border-dashed border-[#B4B4B4] p-10 text-center">
-        <p className="text-sm font-medium text-[#1F1F1F]">Your cart is empty</p>
-        <p className="mt-1.5 text-[13px] text-[#6B6B6B]">
+      <div className="mt-8 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
+        <p className="text-sm font-medium text-[#12142B]">Your cart is empty</p>
+        <p className="mt-1.5 text-[13px] text-[#6B6E84]">
           There is nothing to pay a deposit on yet.
         </p>
-        <Link href="/" className="mt-4 inline-block text-[13px] text-[#1E5F4B] underline">
+        <Link href="/" className="mt-4 inline-block text-[13px] text-[#2A2D64] underline">
           Browse the marketplace
         </Link>
       </div>
@@ -122,15 +122,15 @@ export function CheckoutView() {
         {/* Stated plainly and first: no money moves anywhere in this project. */}
         <div
           role="note"
-          className="flex items-start gap-2.5 rounded border border-[#D9C9A3] bg-[#FDF6E8] p-3.5"
+          className="flex items-start gap-2.5 rounded border border-[#E8A33D] bg-[#FCF3E3] p-3.5"
         >
           <span
             aria-hidden="true"
-            className="mt-0.5 inline-flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border border-[#8A6D2F] text-[11px] font-semibold text-[#8A6D2F]"
+            className="mt-0.5 inline-flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border border-[#6B4A12] text-[11px] font-semibold text-[#6B4A12]"
           >
             !
           </span>
-          <p className="text-[13px] leading-relaxed text-[#6B5324]">
+          <p className="text-[13px] leading-relaxed text-[#6B4A12]">
             <strong className="font-semibold">Simulated payment.</strong> This is a course
             prototype. No card is requested and no money moves: pressing pay records the deposit
             exactly as a real payment confirmation would.
@@ -138,32 +138,32 @@ export function CheckoutView() {
         </div>
 
         <section aria-labelledby="terms-heading" className="flex flex-col gap-3">
-          <h2 id="terms-heading" className="text-base font-semibold text-[#1F1F1F]">
+          <h2 id="terms-heading" className="text-base font-semibold text-[#12142B]">
             Deposit and refund terms
           </h2>
-          <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+          <p className="text-[13px] leading-relaxed text-[#6B6E84]">
             Your deposit is 10% of each item&rsquo;s price and holds it for you for{" "}
             {HOLD_DURATION_HOURS} hours. The balance is paid before collection. If the handover
             does not go ahead:
           </p>
-          <dl className="flex flex-col rounded border border-[#B4B4B4]">
+          <dl className="flex flex-col rounded-lg border border-[#DDDEE9] bg-white">
             {REFUND_TERMS.map((term, index) => (
               <div
                 key={term.event}
                 className={`flex flex-col gap-1 p-3.5 sm:flex-row sm:gap-6 ${
-                  index > 0 ? "border-t border-[#B4B4B4]" : ""
+                  index > 0 ? "border-t border-[#DDDEE9]" : ""
                 }`}
               >
-                <dt className="text-[13px] text-[#1F1F1F] sm:w-1/2">{term.event}</dt>
-                <dd className="text-[13px] text-[#6B6B6B] sm:w-1/2">{term.outcome}</dd>
+                <dt className="text-[13px] text-[#12142B] sm:w-1/2">{term.event}</dt>
+                <dd className="text-[13px] text-[#6B6E84] sm:w-1/2">{term.outcome}</dd>
               </div>
             ))}
           </dl>
         </section>
 
         {blocked && (
-          <div className="rounded border border-[#B4B4B4] bg-[#F7F7F7] p-4">
-            <p className="text-sm font-medium text-[#1F1F1F]">
+          <div className="rounded border border-[#DDDEE9] bg-[#F4F4F8] p-4">
+            <p className="text-sm font-medium text-[#12142B]">
               {available.length === 0
                 ? "Nothing in your cart can be reserved right now."
                 : "Some items in your cart are no longer available."}
@@ -171,7 +171,7 @@ export function CheckoutView() {
             {unavailable.length > 0 && (
               <ul className="mt-2 flex flex-col gap-1">
                 {unavailable.map((line) => (
-                  <li key={line.id} className="text-[13px] text-[#6B6B6B]">
+                  <li key={line.id} className="text-[13px] text-[#6B6E84]">
                     <span className="line-through">{line.title}</span>: {line.unavailableReason}
                   </li>
                 ))}
@@ -179,7 +179,7 @@ export function CheckoutView() {
             )}
             <Link
               href="/cart"
-              className="mt-3 inline-flex min-h-11 items-center text-[13px] text-[#1E5F4B] underline"
+              className="mt-3 inline-flex min-h-11 items-center text-[13px] text-[#2A2D64] underline"
             >
               Review your cart
             </Link>
@@ -191,20 +191,20 @@ export function CheckoutView() {
             type="checkbox"
             checked={accepted}
             onChange={(event) => setAccepted(event.target.checked)}
-            className="mt-0.5 h-5 w-5 flex-none accent-[#1E5F4B]"
+            className="mt-0.5 h-5 w-5 flex-none accent-[#2A2D64]"
           />
-          <span className="text-sm text-[#1F1F1F]">
+          <span className="text-sm text-[#12142B]">
             I have read the deposit and refund terms and accept them.
           </span>
         </label>
 
         {submitError && (
-          <div role="alert" className="rounded border border-[#D9C9A3] bg-[#FDF6E8] p-3.5">
-            <p className="text-[13px] text-[#6B5324]">{submitError.message}</p>
+          <div role="alert" className="rounded border border-[#E8A33D] bg-[#FCF3E3] p-3.5">
+            <p className="text-[13px] text-[#6B4A12]">{submitError.message}</p>
             {submitError.unavailable.length > 0 && (
               <ul className="mt-1.5 flex flex-col gap-1">
                 {submitError.unavailable.map((item) => (
-                  <li key={item.id} className="text-[13px] text-[#6B5324]">
+                  <li key={item.id} className="text-[13px] text-[#6B4A12]">
                     {titleFor(item.id)}: {item.reason}
                   </li>
                 ))}
@@ -216,7 +216,7 @@ export function CheckoutView() {
         <button
           type="submit"
           disabled={!canPay}
-          className="flex h-12 w-full items-center justify-center rounded bg-[#1E5F4B] text-[15px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
+          className="flex h-12 w-full items-center justify-center rounded bg-[#E8A33D] text-[15px] font-semibold text-[#12142B] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:px-8"
         >
           {submitting
             ? "Recording deposit…"
@@ -224,38 +224,38 @@ export function CheckoutView() {
         </button>
       </div>
 
-      <aside className="flex w-full flex-none flex-col gap-4 rounded border border-[#B4B4B4] p-5 lg:w-[340px]">
-        <h2 className="text-base font-semibold text-[#1F1F1F]">Order summary</h2>
+      <aside className="flex w-full flex-none flex-col gap-4 rounded-lg border border-[#DDDEE9] bg-white p-5 lg:w-[340px]">
+        <h2 className="text-base font-semibold text-[#12142B]">Order summary</h2>
 
         <ul className="flex flex-col gap-3">
           {available.map((line) => (
             <li key={line.id} className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-[#1F1F1F]">{line.title}</span>
-              <span className="flex-none font-mono text-[13px] text-[#6B6B6B]">
+              <span className="text-[13px] text-[#12142B]">{line.title}</span>
+              <span className="flex-none font-mono text-[13px] text-[#6B6E84]">
                 {formatNaira(line.listedPrice ?? "0")}
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="h-px bg-[#B4B4B4]" />
+        <div className="h-px bg-[#DDDEE9]" />
 
         <div className="flex flex-col gap-2.5">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold text-[#1F1F1F]">Deposit due today</span>
-            <span className="text-xl font-semibold text-[#1F1F1F]">
+            <span className="text-sm font-semibold text-[#12142B]">Deposit due today</span>
+            <span className="text-xl font-semibold text-[#12142B]">
               {formatNaira(summary?.depositTotal ?? "0")}
             </span>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#6B6B6B]">Balance before collection</span>
-            <span className="font-mono text-[13px] text-[#6B6B6B]">
+            <span className="text-[13px] text-[#6B6E84]">Balance before collection</span>
+            <span className="font-mono text-[13px] text-[#6B6E84]">
               {formatNaira(summary?.balanceTotal ?? "0")}
             </span>
           </div>
         </div>
 
-        <p className="text-xs leading-relaxed text-[#6B6B6B]">
+        <p className="text-xs leading-relaxed text-[#6B6E84]">
           Each item becomes its own order with its own reference. Amounts are recalculated by the
           server when you pay.
         </p>

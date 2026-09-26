@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A complete, slices 01 to 06. A buyer can browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows, all against a seeded PostgreSQL database. Stage B (sign-in, seller submission, admin approval) is next.
+Stage A complete, slices 01 to 06, plus the buyer's orders view. A buyer can browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit, land on a confirmation page backed by real order rows, and come back to those orders later at `/orders`. All of it runs against a seeded PostgreSQL database. Stage B (sign-in, seller submission, admin approval) is next.
 
 ## Requirements
 

@@ -52,12 +52,12 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
   if (orders.length === 0) {
     return (
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
-        <div className="mt-8 rounded border border-dashed border-[#B4B4B4] p-10 text-center">
-          <h1 className="text-sm font-medium text-[#1F1F1F]">No order to show</h1>
-          <p className="mt-1.5 text-[13px] text-[#6B6B6B]">
+        <div className="mt-8 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
+          <h1 className="text-sm font-medium text-[#12142B]">No order to show</h1>
+          <p className="mt-1.5 text-[13px] text-[#6B6E84]">
             This link does not match an order on your account.
           </p>
-          <Link href="/" className="mt-4 inline-block text-[13px] text-[#1E5F4B] underline">
+          <Link href="/" className="mt-4 inline-block text-[13px] text-[#2A2D64] underline">
             Browse the marketplace
           </Link>
         </div>
@@ -74,7 +74,7 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
         <div className="flex items-center gap-2.5">
           <span
             aria-hidden="true"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#1E5F4B]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#2A2D64]"
           >
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -83,16 +83,16 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
               <path d="m5 12 5 5L19 7" />
             </svg>
           </span>
-          <h1 className="text-2xl font-semibold tracking-[-0.015em] text-[#1F1F1F] sm:text-[26px]">
+          <h1 className="text-2xl font-semibold tracking-[-0.015em] text-[#12142B] sm:text-[26px]">
             Deposit received
           </h1>
         </div>
-        <p className="text-sm text-[#1F1F1F]">
+        <p className="text-sm text-[#12142B]">
           {orders.length === 1
             ? "Your item is on hold for you and has left the marketplace."
             : `Your ${orders.length} items are on hold for you and have left the marketplace.`}
         </p>
-        <p className="rounded border border-[#D9C9A3] bg-[#FDF6E8] p-2.5 text-xs leading-relaxed text-[#6B5324]">
+        <p className="rounded border border-[#E8A33D] bg-[#FCF3E3] p-2.5 text-xs leading-relaxed text-[#6B4A12]">
           Simulated payment: no money moved. The orders below are real records.
         </p>
       </header>
@@ -101,9 +101,9 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
         {orders.map((order) => (
           <li
             key={order.id}
-            className="flex flex-col gap-4 rounded border border-[#B4B4B4] p-4 sm:flex-row"
+            className="flex flex-col gap-4 rounded-lg border border-[#DDDEE9] bg-white p-4 sm:flex-row"
           >
-            <div className="relative h-[100px] w-full flex-none overflow-hidden rounded-[3px] bg-[#E8E8E8] sm:w-[120px]">
+            <div className="relative h-[100px] w-full flex-none overflow-hidden rounded-[3px] bg-[#EDEEF6] sm:w-[120px]">
               {order.thumbnail && (
                 <Image
                   src={order.thumbnail}
@@ -116,26 +116,26 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
             </div>
 
             <div className="flex flex-1 flex-col gap-2">
-              <span className="font-mono text-[11px] text-[#6B6B6B]">
-                Order <span className="text-[#1F1F1F]">{order.reference}</span>
+              <span className="font-mono text-[11px] text-[#6B6E84]">
+                Order <span className="text-[#12142B]">{order.reference}</span>
               </span>
-              <span className="text-base font-semibold text-[#1F1F1F]">{order.title}</span>
+              <span className="text-base font-semibold text-[#12142B]">{order.title}</span>
 
               <dl className="mt-1 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1.5">
-                <dt className="text-[13px] text-[#6B6B6B]">Price</dt>
-                <dd className="text-right font-mono text-[13px] text-[#6B6B6B]">
+                <dt className="text-[13px] text-[#6B6E84]">Price</dt>
+                <dd className="text-right font-mono text-[13px] text-[#6B6E84]">
                   {formatNaira(order.listedPrice)}
                 </dd>
-                <dt className="text-[13px] font-medium text-[#1F1F1F]">Deposit paid</dt>
-                <dd className="text-right text-[13px] font-semibold text-[#1F1F1F]">
+                <dt className="text-[13px] font-medium text-[#12142B]">Deposit paid</dt>
+                <dd className="text-right text-[13px] font-semibold text-[#12142B]">
                   {formatNaira(order.depositAmount)}
                 </dd>
-                <dt className="text-[13px] text-[#6B6B6B]">Balance outstanding</dt>
-                <dd className="text-right font-mono text-[13px] text-[#6B6B6B]">
+                <dt className="text-[13px] text-[#6B6E84]">Balance outstanding</dt>
+                <dd className="text-right font-mono text-[13px] text-[#6B6E84]">
                   {formatNaira(order.balanceAmount)}
                 </dd>
-                <dt className="text-[13px] text-[#6B6B6B]">Held until</dt>
-                <dd className="text-right font-mono text-[13px] text-[#6B6B6B]">
+                <dt className="text-[13px] text-[#6B6E84]">Held until</dt>
+                <dd className="text-right font-mono text-[13px] text-[#6B6E84]">
                   <time dateTime={order.holdExpiresAt}>
                     {HOLD_DATE.format(new Date(order.holdExpiresAt))}
                   </time>
@@ -147,16 +147,16 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
       </ul>
 
       {orders.length > 1 && (
-        <div className="mt-4 flex flex-col gap-1.5 rounded border border-[#1E5F4B] bg-[#F4F8F6] p-4">
+        <div className="mt-4 flex flex-col gap-1.5 rounded border border-[#2A2D64] bg-[#EDEEF6] p-4">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold text-[#1F1F1F]">Total deposit paid</span>
-            <span className="text-base font-semibold text-[#1F1F1F]">
+            <span className="text-sm font-semibold text-[#12142B]">Total deposit paid</span>
+            <span className="text-base font-semibold text-[#12142B]">
               {formatNaira(depositTotal)}
             </span>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#6B6B6B]">Total balance outstanding</span>
-            <span className="font-mono text-[13px] text-[#6B6B6B]">
+            <span className="text-[13px] text-[#6B6E84]">Total balance outstanding</span>
+            <span className="font-mono text-[13px] text-[#6B6E84]">
               {formatNaira(balanceTotal)}
             </span>
           </div>
@@ -164,21 +164,46 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
       )}
 
       <section aria-labelledby="terms-heading" className="mt-8 flex flex-col gap-2.5">
-        <h2 id="terms-heading" className="text-[15px] font-semibold text-[#1F1F1F]">
+        <h2 id="terms-heading" className="text-[15px] font-semibold text-[#12142B]">
           The terms you accepted
         </h2>
         <ul className="flex flex-col gap-1.5">
           {REFUND_TERMS.map((term) => (
-            <li key={term.event} className="text-[13px] leading-relaxed text-[#6B6B6B]">
+            <li key={term.event} className="text-[13px] leading-relaxed text-[#6B6E84]">
               {term.event}: {term.outcome.toLowerCase()}.
             </li>
           ))}
         </ul>
       </section>
 
+      <div className="mt-8 flex flex-col gap-3 rounded-lg border border-[#2A2D64] bg-[#EDEEF6] p-5">
+        <h2 className="text-[15px] font-semibold text-[#12142B]">Keep track of this</h2>
+        <p className="text-[13px] leading-relaxed text-[#6B6E84]">
+          Your orders are always here, with what you paid, what is left to pay and how long
+          each item is held.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {orders.map((order) => (
+            <Link
+              key={order.id}
+              href={`/orders/${order.id}`}
+              className="flex h-11 items-center justify-center rounded-lg bg-[#E8A33D] px-5 text-[13px] font-semibold text-[#12142B]"
+            >
+              {orders.length === 1 ? "Open your order" : order.reference}
+            </Link>
+          ))}
+          <Link
+            href="/orders"
+            className="flex h-11 items-center justify-center rounded-lg border border-[#DDDEE9] bg-white px-5 text-[13px] text-[#12142B]"
+          >
+            All your orders
+          </Link>
+        </div>
+      </div>
+
       <Link
         href="/"
-        className="mt-8 inline-flex min-h-11 items-center text-sm text-[#1E5F4B] hover:underline"
+        className="mt-8 inline-flex min-h-11 items-center text-sm text-[#2A2D64] hover:underline"
       >
         Back to the marketplace
       </Link>

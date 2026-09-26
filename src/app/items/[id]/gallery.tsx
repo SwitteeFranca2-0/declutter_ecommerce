@@ -21,8 +21,8 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[4/3] w-full items-center justify-center rounded border border-[#B4B4B4] bg-[#E8E8E8]">
-        <span className="font-mono text-xs text-[#6B6B6B]">No photographs</span>
+      <div className="flex aspect-[4/3] w-full items-center justify-center rounded border border-[#DDDEE9] bg-[#EDEEF6]">
+        <span className="font-mono text-xs text-[#6B6E84]">No photographs</span>
       </div>
     );
   }
@@ -31,7 +31,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded border border-[#B4B4B4] bg-[#E8E8E8]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded border border-[#DDDEE9] bg-[#EDEEF6]">
         <Image
           src={current.url}
           // Alt text from the item title: a screen reader gets the item, not
@@ -55,10 +55,10 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
                   onClick={() => setActive(index)}
                   aria-label={`Show photograph ${index + 1} of ${images.length}`}
                   aria-current={selected}
-                  className={`relative block h-[72px] w-[104px] overflow-hidden rounded bg-[#E8E8E8] transition-[border-color] ${
+                  className={`relative block h-[72px] w-[104px] overflow-hidden rounded bg-[#EDEEF6] transition-[border-color] ${
                     selected
-                      ? "border-2 border-[#1F1F1F]"
-                      : "border border-[#B4B4B4] hover:border-[#6B6B6B]"
+                      ? "border-2 border-[#12142B]"
+                      : "border border-[#DDDEE9] hover:border-[#6B6E84]"
                   }`}
                 >
                   <Image

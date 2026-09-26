@@ -101,8 +101,8 @@ export function Catalogue({ initialItems }: Props) {
                   aria-pressed={active}
                   className={`min-h-11 rounded-full border px-3.5 text-[13px] transition-colors ${
                     active
-                      ? "border-[#1E5F4B] bg-[#1E5F4B] font-medium text-white"
-                      : "border-[#B4B4B4] text-[#1F1F1F] hover:border-[#6B6B6B]"
+                      ? "border-[#2A2D64] bg-[#2A2D64] font-medium text-white"
+                      : "border-[#DDDEE9] text-[#12142B] hover:border-[#6B6E84]"
                   }`}
                 >
                   {value === "all" ? "All" : CATEGORY_LABELS[value]}
@@ -112,12 +112,12 @@ export function Catalogue({ initialItems }: Props) {
           })}
         </ul>
 
-        <label className="flex flex-none items-center gap-2.5 rounded border border-[#B4B4B4] px-3.5 py-2">
-          <span className="text-[13px] text-[#6B6B6B]">Sort</span>
+        <label className="flex flex-none items-center gap-2.5 rounded-lg border border-[#DDDEE9] bg-white px-3.5 py-2">
+          <span className="text-[13px] text-[#6B6E84]">Sort</span>
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as Sort)}
-            className="bg-transparent text-[13px] font-medium text-[#1F1F1F] outline-none"
+            className="bg-transparent text-[13px] font-medium text-[#12142B] outline-none"
           >
             {SORTS.map((value) => (
               <option key={value} value={value}>
@@ -129,7 +129,7 @@ export function Catalogue({ initialItems }: Props) {
       </div>
 
       <p
-        className="mt-4 font-mono text-xs uppercase tracking-wider text-[#6B6B6B]"
+        className="mt-4 font-mono text-xs uppercase tracking-wider text-[#6B6E84]"
         // Announce the new count to screen readers when the grid changes.
         aria-live="polite"
       >
@@ -137,12 +137,12 @@ export function Catalogue({ initialItems }: Props) {
       </p>
 
       {error && (
-        <div className="mt-4 rounded border border-[#B4B4B4] bg-[#F7F7F7] p-4">
-          <p className="text-sm text-[#1F1F1F]">{error}</p>
+        <div className="mt-4 rounded border border-[#DDDEE9] bg-[#F4F4F8] p-4">
+          <p className="text-sm text-[#12142B]">{error}</p>
           <button
             type="button"
             onClick={() => void load(category, sort)}
-            className="mt-2 text-sm text-[#1E5F4B] underline"
+            className="mt-2 text-sm text-[#2A2D64] underline"
           >
             Try again
           </button>
@@ -150,18 +150,18 @@ export function Catalogue({ initialItems }: Props) {
       )}
 
       {!error && items.length === 0 ? (
-        <div className="mt-6 rounded border border-dashed border-[#B4B4B4] p-10 text-center">
-          <p className="text-sm font-medium text-[#1F1F1F]">
+        <div className="mt-6 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
+          <p className="text-sm font-medium text-[#12142B]">
             Nothing in {category === "all" ? "the marketplace" : CATEGORY_LABELS[category]} yet
           </p>
-          <p className="mt-1.5 text-[13px] text-[#6B6B6B]">
+          <p className="mt-1.5 text-[13px] text-[#6B6E84]">
             Items appear here once an admin has reviewed and priced them.
           </p>
           {category !== "all" && (
             <button
               type="button"
               onClick={() => setCategory("all")}
-              className="mt-3 text-[13px] text-[#1E5F4B] underline"
+              className="mt-3 text-[13px] text-[#2A2D64] underline"
             >
               Show everything
             </button>
@@ -193,9 +193,9 @@ function ItemCard({ item, category }: { item: ItemView; category: Category | "al
     <li>
       <Link
         href={href}
-        className="flex h-full flex-col overflow-hidden rounded border border-[#B4B4B4] transition-colors hover:border-[#6B6B6B]"
+        className="flex h-full flex-col overflow-hidden rounded-lg border border-[#DDDEE9] bg-white transition-colors hover:border-[#6B6E84]"
       >
-        <div className="relative aspect-[4/3] w-full bg-[#E8E8E8]">
+        <div className="relative aspect-[4/3] w-full bg-[#EDEEF6]">
           {thumbnail && (
             <Image
               src={thumbnail.url}
@@ -209,22 +209,22 @@ function ItemCard({ item, category }: { item: ItemView; category: Category | "al
 
         <div className="flex flex-1 flex-col gap-2.5 p-4">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#6B6B6B]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#6B6E84]">
               {CATEGORY_LABELS[item.category as Category] ?? item.category}
             </span>
-            <span className="rounded-[3px] border border-[#B4B4B4] px-[7px] py-0.5 text-[10px] text-[#6B6B6B]">
+            <span className="rounded-[3px] border border-[#DDDEE9] px-[7px] py-0.5 text-[10px] text-[#6B6E84]">
               {CONDITION_LABELS[item.condition] ?? item.condition}
             </span>
           </div>
 
           {/* User-supplied. React escapes it. */}
-          <p className="text-[15px] font-semibold leading-snug text-[#1F1F1F]">{item.title}</p>
+          <p className="text-[15px] font-semibold leading-snug text-[#12142B]">{item.title}</p>
 
           <div className="mt-auto flex items-baseline justify-between gap-3">
-            <span className="text-lg font-semibold text-[#1F1F1F]">
+            <span className="text-lg font-semibold text-[#12142B]">
               {formatNaira(item.listedPrice)}
             </span>
-            <span className="font-mono text-[11px] text-[#6B6B6B]">
+            <span className="font-mono text-[11px] text-[#6B6E84]">
               {formatNaira(item.deposit)} deposit
             </span>
           </div>
