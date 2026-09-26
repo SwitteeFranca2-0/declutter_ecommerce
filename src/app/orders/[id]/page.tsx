@@ -20,6 +20,7 @@ import { getThread } from "@/lib/relay";
 import { formatNaira } from "@/lib/pricing";
 import { getSessionUser } from "@/lib/session";
 import { ThreadView } from "@/app/threads/[id]/thread-view";
+import { MeetupPanel } from "./meetup-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +118,15 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </p>
         </section>
       )}
+
+      {/* LOC-1 and LOC-2: the agreement is recorded on the order, not left as
+          a sentence in the conversation. The admin reads it and agrees nothing. */}
+      <MeetupPanel
+        orderId={order.id}
+        initial={order.meetup}
+        viewerId={user.id}
+        canAgree={user.role !== "admin" && order.status === "deposit_paid"}
+      />
 
       <section aria-labelledby="conversation" className="mt-8">
         <h2 id="conversation" className="text-base font-semibold text-[#1F1F1F]">
