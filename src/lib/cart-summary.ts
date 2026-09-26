@@ -24,7 +24,14 @@ export const cartRequestSchema = z.object({
     .array(z.string().min(1).max(64))
     // A cart larger than this is not a shopper, and the cap bounds the query.
     .max(50)
-    .default([]),
+    .default([])
+    // Deduplicated here as well as in `src/lib/cart.ts`, which already makes a
+    // repeat add a no-op. A duplicate can therefore only arrive from a crafted
+    // request, and it must not produce a second line: quantity is meaningless
+    // when every listing is a unique single item, and two lines for one item
+    // would double the deposit total. Order is preserved, because the cart
+    // renders in the order the buyer added things.
+    .transform((ids) => Array.from(new Set(ids))),
 });
 
 export type CartRequest = z.infer<typeof cartRequestSchema>;
