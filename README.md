@@ -8,7 +8,7 @@ Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 
 
 ## Status
 
-Stage A and Stage B complete, Stage C under way. A buyer can register, sign in, verify a phone number (simulated), browse and filter the marketplace, open an item, ask the seller a question without revealing who they are, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. A seller offers items and answers questions without learning who asked. The admin prices and publishes listings, and decides what is relayed between the two. Paying the deposit opens a direct conversation with the seller and releases their name and phone number. The meetup map, balance payment, PIN handover and payout are next.
+Stage A and Stage B complete, Stage C under way. A buyer can register, sign in, verify a phone number (simulated), browse and filter the marketplace, open an item, ask the seller a question without revealing who they are, build a cart, pay a simulated 10% deposit and land on a confirmation page backed by real order rows. A seller offers items and answers questions without learning who asked. The admin prices and publishes listings, and decides what is relayed between the two. Paying the deposit opens a direct conversation with the seller, releases their name and phone number, and lets the two parties agree a meetup point on a map. Balance payment, the PIN handover and the payout are next.
 
 ## Requirements
 
@@ -169,7 +169,7 @@ This section is updated in the same slice that adds each interaction.
 | Auth | NextAuth, credentials provider with JWT cookie sessions | No OAuth provider, so no third-party keys, and no session table |
 | Styling | Tailwind CSS | Responsive marketplace grid |
 | Client scripting | TypeScript and the Fetch API | The assessed AJAX work |
-| Maps | Leaflet with OpenStreetMap | No API key, no billing |
+| Maps | Leaflet with OpenStreetMap | No API key, no billing, no account |
 | Images | Local filesystem | No object storage account |
 | Tests | Vitest | |
 

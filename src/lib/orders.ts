@@ -19,6 +19,7 @@
 import { prisma } from "@/lib/prisma";
 import { releaseLapsedHolds } from "@/lib/items";
 import { orderReference } from "@/lib/checkout";
+import { readMeetupState, type MeetupState } from "@/lib/meetup";
 
 export type OrderView = {
   id: string;
@@ -38,6 +39,8 @@ export type OrderView = {
   seller: { firstName: string; phone: string } | null;
   /** The seller sees who they are dealing with by first name, nothing more. */
   buyer: { firstName: string } | null;
+  /** Where the handover happens, once somebody has proposed one. LOC-2. */
+  meetup: MeetupState | null;
 };
 
 const ORDER_SELECT = {
@@ -59,9 +62,18 @@ const ORDER_SELECT = {
       images: { select: { url: true }, orderBy: { sortOrder: "asc" }, take: 1 },
     },
   },
+  meetupLat: true,
+  meetupLng: true,
+  meetupLabel: true,
   threads: {
     where: { threadType: "direct" as const },
-    select: { id: true },
+    select: {
+      id: true,
+      messages: {
+        orderBy: { createdAt: "asc" as const },
+        select: { senderId: true, body: true },
+      },
+    },
     take: 1,
   },
 } as const;
@@ -114,6 +126,9 @@ export async function getOrderFor(
     seller: isBuyer || isAdmin ? order.item.seller : null,
     // A first name and nothing else. Never a phone number, never an email.
     buyer: isSeller || isAdmin ? { firstName: order.buyer.firstName } : null,
+    // Both parties and the admin see the meetup: it is the fact the order
+    // carries, and a dispute has to be reconstructable (MSG-7).
+    meetup: readMeetupState(order),
   };
 }
 
