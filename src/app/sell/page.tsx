@@ -95,6 +95,19 @@ export default async function SellPage() {
             <SubmissionList submissions={submissions} />
           </section>
 
+          <section aria-labelledby="reserved-heading" className="mt-10">
+            <h2 id="reserved-heading" className="text-base font-semibold text-[#1F1F1F]">
+              Reserved items
+            </h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-[#6B6B6B]">
+              When a buyer pays a deposit, a conversation opens for arranging the handover.{" "}
+              <Link href="/sell/orders" className="text-[#1E5F4B] underline">
+                See what is reserved
+              </Link>
+              .
+            </p>
+          </section>
+
           <section aria-labelledby="enquiries-heading" className="mt-10">
             <h2 id="enquiries-heading" className="text-base font-semibold text-[#1F1F1F]">
               Questions about your items

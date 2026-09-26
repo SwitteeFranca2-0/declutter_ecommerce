@@ -36,21 +36,37 @@ export function Header() {
               take. Hiding the link is not the access control, though — both
               destinations guard server-side as well (AUTH-6). */}
           {status === "authenticated" && session?.user?.role === "buyer" && (
-            <Link
-              href="/enquiries"
-              className="hidden text-sm text-[#1F1F1F] hover:underline sm:inline"
-            >
-              Enquiries
-            </Link>
+            <>
+              <Link
+                href="/orders"
+                className="hidden text-sm text-[#1F1F1F] hover:underline sm:inline"
+              >
+                Orders
+              </Link>
+              <Link
+                href="/enquiries"
+                className="hidden text-sm text-[#1F1F1F] hover:underline sm:inline"
+              >
+                Enquiries
+              </Link>
+            </>
           )}
 
           {status === "authenticated" && session?.user?.role === "seller" && (
-            <Link
-              href="/sell"
-              className="text-sm font-medium text-[#1E5F4B] hover:underline"
-            >
-              Sell an item
-            </Link>
+            <>
+              <Link
+                href="/sell/orders"
+                className="hidden text-sm text-[#1F1F1F] hover:underline sm:inline"
+              >
+                Reserved
+              </Link>
+              <Link
+                href="/sell"
+                className="text-sm font-medium text-[#1E5F4B] hover:underline"
+              >
+                Sell an item
+              </Link>
+            </>
           )}
 
           {status === "authenticated" && session?.user?.role === "admin" && (

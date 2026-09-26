@@ -56,6 +56,13 @@ export async function POST(request: Request) {
   const result = await postMessage(guard.user, parsed.data);
 
   if (!result.ok) {
+    if (result.reason === "locked") {
+      return NextResponse.json(
+        { error: "This conversation is closed. Continue in your direct conversation." },
+        { status: 409, headers: NO_STORE },
+      );
+    }
+
     if (result.reason === "conflict") {
       return NextResponse.json(
         { error: "That conversation was being opened already. Try again." },

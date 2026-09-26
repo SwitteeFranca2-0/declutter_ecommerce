@@ -17,6 +17,13 @@
  * 3. **One active order per item.** A conditional update claims each item,
  *    and the partial unique index on `orders(itemId)` backs it up. The losing
  *    side of a race gets a conflict, never a second order and never a 500.
+ *
+ * The deposit is also the moment the two parties stop being strangers. Each
+ * order opens a direct thread in this same transaction (MSG-3), and the
+ * buyer's earlier relay thread about that item is closed, because there should
+ * be one place to write. If a thread cannot be opened the order is not written
+ * either: a buyer charged for an item with no way to arrange collection is
+ * worse than a failed checkout.
  */
 
 import { Prisma } from "@prisma/client";
@@ -156,6 +163,36 @@ export async function placeOrders(
             balanceAmount: balanceFor(item.listedPrice),
             holdExpiresAt,
           })),
+        });
+
+        // MSG-3: one direct conversation per order, opened automatically.
+        await tx.thread.createMany({
+          data: created.map((order) => ({
+            itemId: order.itemId,
+            orderId: order.id,
+            // Copied from the order per ADR-0002, so "threads this person can
+            // see" stays one predicate.
+            buyerId,
+            threadType: "direct" as const,
+            status: "open" as const,
+          })),
+        });
+
+        // The relay about this item, for this buyer only, has been superseded.
+        // Locked rather than deleted: the history stays readable and the thread
+        // page already refuses new messages on a locked thread.
+        await tx.thread.updateMany({
+          where: {
+            buyerId,
+            itemId: { in: itemIds },
+            threadType: "relay",
+            status: "open",
+          },
+          data: {
+            status: "locked",
+            lockedReason: "Continued in your direct conversation with the seller",
+            lockedAt: now,
+          },
         });
 
         const byItem = new Map(items.map((item) => [item.id, item]));
