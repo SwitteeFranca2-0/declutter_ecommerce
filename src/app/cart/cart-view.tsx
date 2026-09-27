@@ -190,15 +190,12 @@ function CartRow({ line, onRemove }: { line: CartLine; onRemove: () => void }) {
         )}
 
         {gone && (
-          <div className="mt-0.5 flex items-center gap-1.5">
-            <svg
-              width="15" height="15" viewBox="0 0 24 24" fill="none"
-              stroke="#6B6E84" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 8v5" />
-              <path d="M12 16.5v.01" />
-            </svg>
+          /* The state three ways at once: a tag, a struck price and words.
+             Never colour alone. */
+          <div className="mt-0.5 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-[#F4F4F8] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#6B6E84]">
+              Unavailable
+            </span>
             <span className="text-[13px] font-medium text-[#12142B]">
               {line.unavailableReason}
             </span>
