@@ -2,13 +2,49 @@
 
 An escrow-mediated peer-to-peer marketplace for used goods.
 
-Declutter puts a verified intermediary between private buyers and sellers. Listings are reviewed and priced by an admin, payments are held until handover, communication is mediated, and the physical exchange is gated by a payment-proof PIN. Money never moves directly between the two parties, and contact details unlock in stages tied to commitment.
+**The idea.** Declutter puts a verified intermediary between private buyers and sellers. Listings are
+reviewed and priced by an admin, payments are held until handover, communication is mediated, and the
+physical exchange is gated by a payment-proof PIN. Money never moves directly between the two parties,
+and contact details unlock in stages tied to commitment.
+
+That is the full concept. What this branch implements is the buyer's side of it, described under
+Status below.
 
 Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 2 (E-Commerce Site).
 
 ## Status
 
-Stage A complete, slices 01 to 06, plus the buyer's orders view. A buyer can browse the marketplace, filter and sort it, open an item, build a cart, pay a simulated 10% deposit, land on a confirmation page backed by real order rows, and come back to those orders later at `/orders`. All of it runs against a seeded PostgreSQL database. Stage B (sign-in, seller submission, admin approval) is next.
+**Submission scope: the buyer's purchase journey, delivered end to end.** A visitor can browse the
+marketplace, filter and sort it without a page reload, open an item, build a cart that survives
+navigation, pay a simulated 10% deposit, land on a confirmation page backed by a real order row,
+and return to those orders later. Every figure shown is recalculated on the server.
+
+205 tests pass against a real PostgreSQL database, and a clean clone runs with no API keys and no
+accounts.
+
+### What is deliberately not here
+
+Accounts and sign-in, seller submission, admin curation and pricing, the anonymised message relay,
+the post-deposit direct thread and the meetup map are **not on this branch**. Phase 1 supervisor
+feedback described exactly this reduced scope as the fallback if the wider build proved difficult,
+and the choice here was to deliver it properly rather than deliver more of it thinly.
+
+That work does exist: it is built, tested and merged on the **`full-scope`** branch, which carries
+the same project through the escrow flow, the relay and the meetup map. It is not claimed as part
+of this submission.
+
+### Pages
+
+| Route | What it does |
+|---|---|
+| `/` | Marketplace: responsive grid, category filter and price sort, both without a reload |
+| `/items/[id]` | Item detail: gallery, condition, description, deposit and balance |
+| `/items/[id]` (unavailable) | A reserved or sold item keeps its page, with the reason and what happens next |
+| `/cart` | Cart: current prices, unavailable items excluded from totals, remove |
+| `/checkout` | Refund terms, explicit acceptance, simulated deposit |
+| `/orders/confirmation` | Order reference, deposit paid, balance outstanding, hold expiry |
+| `/orders` | Every order this buyer has placed |
+| `/orders/[id]` | One order in full, with the terms that were accepted |
 
 ## Requirements
 
@@ -48,7 +84,10 @@ Every seeded account uses the password **`declutter`**.
 | Buyer | `buyer1@declutter.test` |
 | Buyer | `buyer2@declutter.test` |
 
-Sign-in arrives in Stage B. Until then, checkout acts as `buyer1` through a single server-side function, so the schema never needs a nullable buyer.
+**There is no sign-in on this branch**, so these accounts matter only to the seed and to the
+database views. Checkout acts as `buyer1` through a single server-side function, `getActingBuyer`,
+which keeps `Order.buyerId` non-nullable rather than weakening the schema for a temporary gap. On
+the `full-scope` branch that one function reads the session instead, and no call site changes.
 
 ## Tests
 
@@ -60,7 +99,16 @@ npm run typecheck  # tsc --noEmit
 
 Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
 
-Coverage concentrates on what clicking cannot verify: the item state machine's legal and illegal transitions, one-active-order-per-item under concurrent deposits, checkout ignoring tampered amounts, a cart with one unavailable item creating no orders at all, and that money survives as `Decimal` rather than drifting as a float.
+205 tests across 11 files. Coverage concentrates on what clicking cannot verify:
+
+- the item state machine's legal and illegal transitions, including ones no page drives yet
+- one active order per item under two simultaneous deposits, guaranteed by a partial unique index
+  rather than by application code, and still passing with the application-level check removed
+- checkout ignoring a tampered deposit, total or price in the request body, and never echoing it
+- a cart holding one unavailable item creating no orders at all
+- an order read returning nothing for a buyer it does not belong to
+- an unavailable item returning its details while an id that was never issued returns nothing
+- money surviving as `Decimal` rather than drifting as a float
 
 ## Where AJAX is used
 
@@ -105,11 +153,8 @@ The request body is `{ itemIds, acceptedTerms: true }` and nothing more. No pric
 
 Checkout runs in a single transaction and moves each item from `listed` to `on_hold` for 72 hours. Two buyers paying for the same item at the same moment get exactly one order and one `409`, guaranteed by the partial unique index rather than by application code. Payment is simulated and the page says so above the pay button.
 
-### 4. Thread polling
-
-**Stage C.** New messages appear in a thread by polling a JSON route handler.
-
-This section is updated in the same slice that adds each interaction.
+Each of the three is an explicit `fetch` against a route handler that returns JSON. A fourth, the
+message thread polling, exists on the `full-scope` branch and is not part of this submission.
 
 ## Scripts
 
@@ -132,30 +177,35 @@ This section is updated in the same slice that adds each interaction.
 | Language | TypeScript, strict | No `any` in production code |
 | Database | PostgreSQL, local | No hosted service, no credential an examiner lacks |
 | ORM | Prisma | Typed queries, committed migrations, seed script |
-| Auth | NextAuth, credentials only | No OAuth provider, so no third-party keys |
 | Styling | Tailwind CSS | Responsive marketplace grid |
 | Client scripting | TypeScript and the Fetch API | The assessed AJAX work |
-| Maps | Leaflet with OpenStreetMap | No API key, no billing |
 | Images | Local filesystem | No object storage account |
-| Tests | Vitest | |
+| Tests | Vitest | Route-handler and pure-module seams, against a real database |
+
+`next-auth` is installed and unused on this branch: the sign-in it powers lives on `full-scope`.
+Leaflet, used there for the meetup map, is not installed here.
 
 Every choice is constrained by one rule: an examiner must clone this repository and run it with no API keys and no paid services.
 
 ## Simulated subsystems
 
-Five things are deliberately faked, and each is labelled as such in the interface so nobody is misled into thinking money moved.
+Nothing here contacts a paid service. Two subsystems are deliberately faked on this branch, and
+each is labelled in the interface so nobody is misled into thinking money moved.
 
 | Subsystem | What happens instead |
 |---|---|
-| Payment gateway | A confirmation endpoint driving the same state transitions a real webhook would |
-| Phone verification | The full flow, accepting any code |
-| Bank payouts | An admin "mark paid" action writing a payout record |
-| Hold expiry | Evaluated on read, so there is no cron or scheduler dependency |
-| Chat infrastructure | In-house messaging on the messages table |
+| Payment gateway | An endpoint driving the same state transitions a real webhook would, announced as simulated above the pay button |
+| Hold expiry | Evaluated on read, so there is no cron, scheduler or background worker to deploy |
+
+Three more are faked on `full-scope`: phone verification accepts any code, payouts are an admin
+"mark paid" action, and messaging is in-house on the `messages` table rather than a chat service.
 
 ## Data model
 
-Six tables: users, items, item images, orders, threads, messages, payouts.
+Seven tables: users, items, item images, orders, threads, messages and payouts. The whole schema
+ships in the first migration, so later work extends behaviour rather than retrofitting constraints;
+this branch exercises users, items, item images and orders, and leaves the last three for the
+messaging and payout flows on `full-scope`.
 
 Two decisions worth knowing, because they look unusual:
 
