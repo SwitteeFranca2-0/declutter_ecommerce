@@ -110,9 +110,9 @@ function toView(item: RawItem): ItemView {
 /**
  * One listed item with its images, or null.
  *
- * Returns null both for an item that does not exist and for one that is no
- * longer listed, because the buyer sees the same thing either way and the
- * difference would leak which items exist.
+ * Null for an item that does not exist and for one that is not listed: this is
+ * the buying path, and nothing that cannot be bought may come out of it.
+ * `getItemForDisplay` is what renders an unavailable item.
  */
 export const getListedItem = cache(async (id: string): Promise<ItemView | null> => {
   await releaseLapsedHolds();
@@ -123,6 +123,59 @@ export const getListedItem = cache(async (id: string): Promise<ItemView | null> 
   });
 
   return item ? toView(item as RawItem) : null;
+});
+
+/** Why an item cannot be bought, in the buyer's words. */
+function unavailableReason(status: string): string {
+  switch (status) {
+    case "on_hold":
+      return "Reserved by another buyer";
+    case "sold":
+    case "completed":
+      return "Sold";
+    default:
+      // pending_review, rejected: never publicly visible in the first place.
+      return "No longer listed";
+  }
+}
+
+export type ItemDisplay = {
+  item: ItemView;
+  available: boolean;
+  /** Null when the item can be bought. */
+  reason: string | null;
+};
+
+/**
+ * One item as a page may show it, available or not.
+ *
+ * A buyer who followed a link from their cart, or from a page open since
+ * yesterday, should see **which** item went and why, rather than a generic
+ * refusal that leaves them guessing. So a real id returns the item with a
+ * reason, and an id that was never issued still returns null.
+ *
+ * This reverses the earlier rule that the two cases were indistinguishable.
+ * The trade is deliberate: ids are cuids, so anybody holding one has already
+ * seen the item, and the cost of the old rule fell entirely on honest buyers.
+ * Nothing about the seller is included, and the buying path is untouched.
+ */
+export const getItemForDisplay = cache(async (id: string): Promise<ItemDisplay | null> => {
+  await releaseLapsedHolds();
+
+  const item = await prisma.item.findUnique({
+    where: { id },
+    select: { ...ITEM_SELECT, status: true },
+  });
+
+  if (!item) return null;
+
+  const available = item.status === "listed";
+
+  return {
+    item: toView(item as RawItem),
+    available,
+    reason: available ? null : unavailableReason(item.status),
+  };
 });
 
 const ORDER_BY = {

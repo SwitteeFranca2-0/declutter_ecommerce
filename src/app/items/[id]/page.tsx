@@ -12,11 +12,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getListedItem } from "@/lib/items";
+import { getItemForDisplay } from "@/lib/items";
 import { formatNaira } from "@/lib/pricing";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
 import { Gallery } from "./gallery";
 import { AddToCart } from "./add-to-cart";
+import { UnavailableItem } from "./unavailable";
 
 export const dynamic = "force-dynamic";
 
@@ -42,19 +43,31 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const item = await getListedItem(id);
+  const found = await getItemForDisplay(id);
   // React escapes this on render; it is plain text in a meta tag here.
-  return { title: item ? `${item.title} · Declutter` : "Item unavailable · Declutter" };
+  if (!found) return { title: "Item unavailable · Declutter" };
+  return {
+    title: found.available
+      ? `${found.item.title} · Declutter`
+      : `${found.item.title}, unavailable · Declutter`,
+  };
 }
 
 export default async function ItemDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const item = await getListedItem(id);
+  const found = await getItemForDisplay(id);
 
-  // Null covers both "no such item" and "no longer listed". The buyer sees the
-  // same page either way, so the difference cannot be used to discover which
-  // items exist.
-  if (!item) notFound();
+  // An id that was never issued still shows nothing: there is no item to
+  // describe, and nothing to learn from the page.
+  if (!found) notFound();
+
+  // A real item that cannot be bought gets its own page, so a buyer arriving
+  // from a cart or a stale tab sees which item went and why.
+  if (!found.available) {
+    return <UnavailableItem item={found.item} reason={found.reason ?? "No longer listed"} />;
+  }
+
+  const item = found.item;
 
   // Carries the buyer's filter back to where they came from. Nothing sets it
   // until slice 03; until then the link simply returns to the catalogue.
