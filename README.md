@@ -164,7 +164,7 @@ Details worth noting in the code:
 
 **Built.** `src/app/cart-provider.tsx` calls `POST /api/cart` and both the header badge and the cart page re-render from the response.
 
-The cart itself holds **item identifiers only**, in `localStorage`, so it survives navigation and closing the tab. It never stores a price. Whenever it changes, the identifiers are posted to `/api/cart`, which returns current prices, per-item availability and the totals. Adding an item updates the badge in place, with no reload.
+The cart itself holds **item identifiers only**, in `localStorage`, so it survives navigation and closing the tab. It never stores a price. Whenever it changes, the identifiers are posted to `/api/cart`, which returns current prices, per-item availability and the totals. Adding an item updates the badge in place, with no reload. A change made while a request is in flight aborts it, so a slow answer about an older cart never overwrites a newer one, and another open tab follows the change through the browser's `storage` event.
 
 Storing identifiers rather than prices is a security decision, not a storage one. A price in `localStorage` is a price the buyer can edit, and it would go stale the moment an admin re-prices an item. Every figure shown comes back from the server.
 
