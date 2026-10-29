@@ -1,0 +1,20 @@
+# Rebuilt inside the image
+node_modules
+.next
+*.tsbuildinfo
+
+# Never baked into an image: compose passes the connection settings
+.env
+.env*.local
+
+# Not needed to run the application
+.git
+.claude
+docs
+tests
+coverage
+session.md
+*.pdf
+*.docx
+*.pptx
+/*.png
