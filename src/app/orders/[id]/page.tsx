@@ -78,9 +78,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         </div>
         <div className="h-px bg-[#DDDEE9]" />
         <div className="flex items-baseline justify-between gap-4">
-          <span className="text-sm font-semibold text-[#12142B]">Balance on collection</span>
+          <span className="text-sm font-semibold text-[#12142B]">
+            {lapsed ? "Deposit refunded" : "Balance on collection"}
+          </span>
           <span className="text-2xl font-semibold tracking-[-0.01em] text-[#12142B]">
-            {formatNaira(order.balanceAmount)}
+            {formatNaira(lapsed ? order.refundAmount : order.balanceDue)}
           </span>
         </div>
       </section>
@@ -93,7 +95,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           {lapsed ? (
             <>
               The {HOLD_DURATION_HOURS}-hour hold ran out, so the item went back on the
-              marketplace for other buyers.
+              marketplace for other buyers and your deposit was refunded in full. Nothing more
+              is owed.
             </>
           ) : (
             <>

@@ -28,9 +28,10 @@ export function Header() {
         </Link>
 
         <nav className="flex items-center gap-4 sm:gap-7">
+          {/* Shown at every width: on a phone it is the only way back to an order. */}
           <Link
             href="/orders"
-            className="hidden text-sm text-[#6B6E84] hover:text-[#12142B] sm:inline"
+            className="flex min-h-11 items-center text-sm text-[#6B6E84] hover:text-[#12142B]"
           >
             Orders
           </Link>
