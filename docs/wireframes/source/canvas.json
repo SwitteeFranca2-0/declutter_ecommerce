@@ -1,0 +1,21 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",         "title": "1 · Catalogue — desktop",    "x": 0,    "y": 0,    "w": 1280, "h": 980 },
+    { "file": "Detail.dc.html",       "title": "2 · Item detail — desktop",  "x": 1400, "y": 0,    "w": 1280, "h": 1000 },
+    { "file": "Cart.dc.html",         "title": "3 · Cart — desktop",         "x": 2800, "y": 0,    "w": 1280, "h": 900 },
+    { "file": "Checkout.dc.html",     "title": "4 · Checkout — desktop",     "x": 4200, "y": 0,    "w": 1280, "h": 980 },
+    { "file": "Confirmation.dc.html", "title": "5 · Confirmation — desktop", "x": 5600, "y": 0,    "w": 1280, "h": 900 },
+    { "file": "Phone.dc.html",        "title": "1 · Catalogue — phone",      "x": 0,    "y": 1220, "w": 390,  "h": 844 },
+    { "file": "CartPhone.dc.html",    "title": "3 · Cart — phone",           "x": 520,  "y": 1220, "w": 390,  "h": 844 }
+  ],
+  "annotations": [
+    { "id": "note-brief", "x": 0, "y": -230, "w": 560, "text": "DECLUTTER — buyer page flow wireframes\nStage A, slice 01. Greyscale: layout and hierarchy only, not finished UI.\n\nTop row reads left to right in journey order. Bottom row is the same design at phone width." },
+    { "id": "note-ajax", "x": 660, "y": -230, "w": 420, "text": "GREEN = the two assessed AJAX interactions.\n\nCategory chips → fetch the JSON route, re-render the grid, no page reload.\nCart badge → fetch on add, count updates in place.\n\nEverything else is deliberately grey so these two stand out." },
+    { "id": "note-detail", "x": 1400, "y": -160, "w": 420, "text": "Deposit is stated before any commitment — the headline price is not what the buyer pays today.\n\n\"Ask a question\" opens the anonymised relay thread. That arrives in Stage C; the button is drawn here so the layout does not have to change later." },
+    { "id": "note-cart", "x": 2800, "y": -160, "w": 420, "text": "The third row is the case that matters: an item reserved by someone else while this buyer browsed.\n\nGreyed, struck through, excluded from the total, still removable. This is checklist item BUY-6 and it is easy to forget until a marker tries it." },
+    { "id": "note-checkout", "x": 4200, "y": -160, "w": 420, "text": "Two things deliberately placed:\n\nThe simulated-payment banner is at the top, not buried — nobody should think money moved.\n\nRefund terms sit ABOVE the payment form with an explicit accept, because PRD §9 requires them shown before payment is taken." },
+    { "id": "note-confirm", "x": 5600, "y": -160, "w": 420, "text": "One order per item — the data model has no multi-item order, so a two-item cart produces two order cards with two references.\n\nThe hold expiry is shown as a real date. \"What happens next\" describes Stage C so the buyer is not left guessing." },
+    { "id": "note-phone", "x": 0, "y": 2120, "w": 910, "text": "Phone: nav collapses to a menu, chips scroll sideways, grid drops to one column, the cart summary moves from beside the list to the end of it. Cart badge stays visible at every width." }
+  ],
+  "launch": { "view": "canvas" }
+}

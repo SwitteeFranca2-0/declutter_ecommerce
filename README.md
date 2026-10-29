@@ -10,6 +10,12 @@ and contact details unlock in stages tied to commitment.
 That is the full concept. What this branch implements is the buyer's side of it, described under
 Status below.
 
+> **Submission scope.** This branch delivers the buyer's purchase journey: browse, item detail, cart,
+> a simulated 10% deposit and the order record behind it. There is no sign-in, no seller or admin flow,
+> no messaging and no PIN handover here. The Phase 2 tutor accepted this reduced scope, and Phase 3
+> finalises it rather than widening it ([docs/phase2-feedback.md](docs/phase2-feedback.md)).
+> Wireframes for each page are in [docs/wireframes/](docs/wireframes/).
+
 Coursework for DLBITPEWP01_E, Project: Getting Started in Web Programming, Task 2 (E-Commerce Site).
 
 ## Status
