@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { DepositTotals, EmptyCart } from "@/app/cart/cart-parts";
 import { useCart } from "@/app/cart-provider";
 import type { PlacedOrder, UnavailableItem } from "@/lib/checkout";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
@@ -49,15 +50,7 @@ export function CheckoutView() {
 
   if (lines.length === 0) {
     return (
-      <div className="mt-8 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
-        <p className="text-sm font-medium text-[#12142B]">Your cart is empty</p>
-        <p className="mt-1.5 text-[13px] text-[#6B6E84]">
-          There is nothing to pay a deposit on yet.
-        </p>
-        <Link href="/" className="mt-4 inline-block text-[13px] text-[#2A2D64] underline">
-          Browse the marketplace
-        </Link>
-      </div>
+      <EmptyCart>There is nothing to pay a deposit on yet.</EmptyCart>
     );
   }
 
@@ -240,20 +233,10 @@ export function CheckoutView() {
 
         <div className="h-px bg-[#DDDEE9]" />
 
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold text-[#12142B]">Deposit due today</span>
-            <span className="text-xl font-semibold text-[#12142B]">
-              {formatNaira(summary?.depositTotal ?? "0")}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#6B6E84]">Balance before collection</span>
-            <span className="font-mono text-[13px] text-[#6B6E84]">
-              {formatNaira(summary?.balanceTotal ?? "0")}
-            </span>
-          </div>
-        </div>
+        <DepositTotals
+          deposit={summary?.depositTotal ?? "0"}
+          balance={summary?.balanceTotal ?? "0"}
+        />
 
         <p className="text-xs leading-relaxed text-[#6B6E84]">
           Each item becomes its own order with its own reference. Amounts are recalculated by the

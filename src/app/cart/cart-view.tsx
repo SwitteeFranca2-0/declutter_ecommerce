@@ -21,6 +21,8 @@ import { CATEGORY_LABELS, CONDITION_LABELS, type Category } from "@/lib/item-que
 import { formatNaira } from "@/lib/pricing";
 import type { CartLine } from "@/lib/cart-summary";
 
+import { DepositTotals, EmptyCart } from "./cart-parts";
+
 export function CartView() {
   const { summary, loading, error, ready, remove } = useCart();
 
@@ -33,15 +35,9 @@ export function CartView() {
 
   if (lines.length === 0) {
     return (
-      <div className="mt-8 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
-        <p className="text-sm font-medium text-[#12142B]">Your cart is empty</p>
-        <p className="mt-1.5 text-[13px] text-[#6B6E84]">
-          Items you add will appear here, held for 72 hours once you pay a deposit.
-        </p>
-        <Link href="/" className="mt-4 inline-block text-[13px] text-[#2A2D64] underline">
-          Browse the marketplace
-        </Link>
-      </div>
+      <EmptyCart>
+        Items you add will appear here, held for 72 hours once you pay a deposit.
+      </EmptyCart>
     );
   }
 
@@ -87,20 +83,10 @@ export function CartView() {
 
         <div className="h-px bg-[#DDDEE9]" />
 
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold text-[#12142B]">Deposit due today</span>
-            <span className="text-xl font-semibold text-[#12142B]">
-              {formatNaira(summary?.depositTotal ?? "0")}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#6B6E84]">Balance on collection</span>
-            <span className="font-mono text-[13px] text-[#6B6E84]">
-              {formatNaira(summary?.balanceTotal ?? "0")}
-            </span>
-          </div>
-        </div>
+        <DepositTotals
+          deposit={summary?.depositTotal ?? "0"}
+          balance={summary?.balanceTotal ?? "0"}
+        />
 
         {/* Checkout is all or nothing, so any unavailable line blocks it. */}
         {available > 0 && unavailable === 0 ? (
