@@ -74,7 +74,7 @@ The eleven-step operator walkthrough. Also the finalization-phase manual test ch
 - [ ] **P2-STACK** — 1 slide: languages, frameworks, libraries, tools, and any deviations from the Phase 1 plan
 - [ ] **P2-CHALLENGES** — 1 slide: technical challenges and how they were solved, including any features dropped or changed
 - [ ] **P2-STATUS** — 1 slide: what works, what does not, what comes next
-- [x] **P2-WIREFRAMES** — UI wireframes and the buyer page flow, annotated with the data passed between steps and how the cart is stored (explicitly requested in Phase 1 feedback)  _(2026-09-12 — slice 01: design canvas, five pages at two widths, plus the annotated flow diagram. 2026-10-29: published to the repository under `docs/wireframes/` with PNG renders, after the Phase 2 tutor found them missing; they had been excluded by `.gitignore`)_
+- [x] **P2-WIREFRAMES** — UI wireframes and the buyer page flow, annotated with the data passed between steps and how the cart is stored (explicitly requested in Phase 1 feedback)  _(2026-09-12 — slice 01: design canvas, five pages at two widths, plus the annotated flow diagram. 2026-10-29: published to the repository under `docs/wireframes/` after the Phase 2 tutor found them missing, having been excluded by `.gitignore`. Redrawn from the built pages as six wireframes at two widths, each beside a screenshot of the page as built)_
 - [ ] **P2-FILENAME** — Exported as PDF named `Uvere-Franca_92134098_WebProgramming_P2_S`
 - [x] **P2-SUBMITTED** — Uploaded via the submission portal  _(2026-10-29: tutor feedback received, proceed to Phase 3 without resubmission. See `docs/phase2-feedback.md`)_
 

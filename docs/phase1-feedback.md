@@ -26,8 +26,8 @@ Domain model, stack choices, architecture, ERD, and the security approach (serve
 
 | # | Action | Status |
 |---|---|---|
-| 1 | UI wireframes + buyer page flow (browse → detail → cart → checkout → confirmation), annotated with the data passed between steps and how the cart is stored | Open |
-| 2 | Basic project skeleton committed early in Phase 2 — Next.js app, Prisma schema, first migration, seed script | Open |
+| 1 | UI wireframes + buyer page flow (browse → detail → cart → checkout → confirmation), annotated with the data passed between steps and how the cart is stored | Done in slice 01. Published to the repository and redrawn from the built pages on 2026-10-29 ([`wireframes/`](wireframes/)) |
+| 2 | Basic project skeleton committed early in Phase 2 — Next.js app, Prisma schema, first migration, seed script | Done in slice 02, 2026-09-13 |
 | 3 | Build order front-loading the end-to-end purchase journey | Resolved by [ADR-0001](adr/0001-phase2-build-order.md) |
 
 Action 1 is the only genuine gap in the Phase 1 submission. The PRD answers it in prose (§11, cart in `localStorage`, re-validated server-side at checkout) but carries no diagram, and the diagram is what is being marked.
