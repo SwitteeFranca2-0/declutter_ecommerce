@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", "Helvetica Neue", Helvetica, sans-serif; background: #ffffff; color: #1f1f1f; }
+    a { color: #1e5f4b; } a:hover { color: #164539; }
+    .mono { font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; min-height: 900px; background: #ffffff; display: flex; flex-direction: column;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 48px; height: 72px; border-bottom: 1px solid #b4b4b4;">
+    <div style="display: flex; align-items: baseline; gap: 6px;">
+      <span style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">Declutter</span>
+      <span class="mono" style="font-size: 11px; color: #6b6b6b;">marketplace</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 28px;">
+      <span style="font-size: 14px; color: #6b6b6b;">Browse</span>
+      <span style="font-size: 14px; color: #6b6b6b;">Sell an item</span>
+      <span style="font-size: 14px; color: #6b6b6b;">How it works</span>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid #1e5f4b; border-radius: 4px; background: #f4f8f6;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f1f1f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span style="font-size: 13px; font-weight: 600;">Cart</span>
+        <span class="mono" style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #1e5f4b; color: #ffffff; font-size: 11px; font-weight: 500;">3</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px; padding: 36px 48px 24px;">
+    <span style="font-size: 26px; font-weight: 600; letter-spacing: -0.015em;">Your cart</span>
+    <span style="font-size: 13px; color: #6b6b6b;">Prices and availability are re-checked every time this page loads.</span>
+  </div>
+
+  <div style="display: flex; gap: 40px; padding: 0 48px 48px; align-items: flex-start;">
+
+    <!-- line items -->
+    <div style="display: flex; flex-direction: column; gap: 16px; flex-grow: 1;">
+
+      <div style="display: flex; gap: 18px; padding: 16px; border: 1px solid #b4b4b4; border-radius: 4px;">
+        <div style="width: 140px; height: 100px; flex: none; background: #e8e8e8; border-radius: 3px;">
+          <svg width="140" height="100" viewBox="0 0 140 100"><line x1="0" y1="0" x2="140" y2="100" stroke="#c4c4c4" stroke-width="1"/><line x1="140" y1="0" x2="0" y2="100" stroke="#c4c4c4" stroke-width="1"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px; flex-grow: 1;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6b6b6b;">Electronics</span>
+          <span style="font-size: 16px; font-weight: 600;">Item title, up to two lines of text</span>
+          <span style="font-size: 13px; color: #6b6b6b;">Condition: Good</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 12px; flex: none;">
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+            <span style="font-size: 18px; font-weight: 600;">₦45,000</span>
+            <span class="mono" style="font-size: 11px; color: #6b6b6b;">₦4,500 deposit</span>
+          </div>
+          <span style="font-size: 12px; color: #6b6b6b; text-decoration: underline;">Remove</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 18px; padding: 16px; border: 1px solid #b4b4b4; border-radius: 4px;">
+        <div style="width: 140px; height: 100px; flex: none; background: #e8e8e8; border-radius: 3px;">
+          <svg width="140" height="100" viewBox="0 0 140 100"><line x1="0" y1="0" x2="140" y2="100" stroke="#c4c4c4" stroke-width="1"/><line x1="140" y1="0" x2="0" y2="100" stroke="#c4c4c4" stroke-width="1"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px; flex-grow: 1;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6b6b6b;">Books</span>
+          <span style="font-size: 16px; font-weight: 600;">Item title, single line</span>
+          <span style="font-size: 13px; color: #6b6b6b;">Condition: Good</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 12px; flex: none;">
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+            <span style="font-size: 18px; font-weight: 600;">₦6,500</span>
+            <span class="mono" style="font-size: 11px; color: #6b6b6b;">₦650 deposit</span>
+          </div>
+          <span style="font-size: 12px; color: #6b6b6b; text-decoration: underline;">Remove</span>
+        </div>
+      </div>
+
+      <!-- unavailable: reserved by someone else while this buyer browsed -->
+      <div style="display: flex; gap: 18px; padding: 16px; border: 1px solid #b4b4b4; border-radius: 4px; background: #f7f7f7;">
+        <div style="width: 140px; height: 100px; flex: none; background: #e8e8e8; border-radius: 3px; opacity: 0.55;">
+          <svg width="140" height="100" viewBox="0 0 140 100"><line x1="0" y1="0" x2="140" y2="100" stroke="#c4c4c4" stroke-width="1"/><line x1="140" y1="0" x2="0" y2="100" stroke="#c4c4c4" stroke-width="1"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px; flex-grow: 1;">
+          <span class="mono" style="font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #9b9b9b;">Furniture</span>
+          <span style="font-size: 16px; font-weight: 600; color: #9b9b9b;">Item title, single line</span>
+          <div style="display: flex; align-items: center; gap: 7px; margin-top: 2px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5v.01"/></svg>
+            <span style="font-size: 13px; font-weight: 500; color: #1f1f1f;">No longer available — reserved by another buyer</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 12px; flex: none;">
+          <span style="font-size: 18px; font-weight: 600; color: #9b9b9b; text-decoration: line-through;">₦78,000</span>
+          <span style="font-size: 12px; color: #1f1f1f; text-decoration: underline;">Remove</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- summary -->
+    <div style="display: flex; flex-direction: column; gap: 16px; width: 340px; flex: none; padding: 20px; border: 1px solid #b4b4b4; border-radius: 4px;">
+      <span style="font-size: 16px; font-weight: 600;">Summary</span>
+
+      <div style="display: flex; flex-direction: column; gap: 9px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 13px; color: #6b6b6b;">2 items available</span>
+          <span class="mono" style="font-size: 13px;">₦51,500</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 13px; color: #6b6b6b;">1 item unavailable</span>
+          <span class="mono" style="font-size: 13px; color: #6b6b6b;">not included</span>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #b4b4b4;"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 9px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 14px; font-weight: 600;">Deposit due today</span>
+          <span style="font-size: 20px; font-weight: 600;">₦5,150</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 13px; color: #6b6b6b;">Balance on collection</span>
+          <span class="mono" style="font-size: 13px; color: #6b6b6b;">₦46,350</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 4px; background: #1e5f4b;">
+        <span style="font-size: 15px; font-weight: 600; color: #ffffff;">Proceed to checkout</span>
+      </div>
+
+      <span style="font-size: 12px; color: #6b6b6b; line-height: 1.55;">Each item becomes its own order. Unavailable items are never charged for.</span>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

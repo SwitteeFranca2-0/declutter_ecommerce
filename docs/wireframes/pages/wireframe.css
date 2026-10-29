@@ -1,0 +1,116 @@
+/* Greyscale wireframes of the built pages. Green marks the three assessed
+   AJAX interactions: category filter and sort, cart and badge, deposit payment. */
+:root {
+  --ink: #1f1f1f;
+  --muted: #6b6b6b;
+  --line: #b4b4b4;
+  --soft: #e8e8e8;
+  --page: #f4f4f4;
+  --ajax: #1e5f4b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; background: var(--page); color: var(--ink); }
+.mono { font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace; }
+.muted { color: var(--muted); }
+.ajax { color: var(--ajax); }
+
+/* header */
+.header { background: #fff; border-bottom: 1px solid var(--line); }
+.header .in { max-width: 1088px; margin: 0 auto; padding: 0 24px; height: 68px; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.logo small { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 11px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.nav { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--muted); }
+.cartbtn { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 600; }
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--ajax); color: #fff; font: 500 11px "IBM Plex Mono", Menlo, monospace; }
+
+/* layout */
+.main { max-width: 1088px; margin: 0 auto; padding: 36px 24px 56px; }
+.narrow { max-width: 768px; }
+h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 8px; }
+.lede { font-size: 13px; color: var(--muted); margin: 0 0 24px; line-height: 1.6; }
+.rule { border: 0; border-top: 1px solid var(--line); margin: 0 0 24px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; }
+.half { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+.stack > * + * { margin-top: 16px; }
+
+/* boxes */
+.card { background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.pad { padding: 20px; }
+.ph { background: var(--soft); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.ph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bar { height: 10px; border-radius: 3px; background: var(--soft); }
+.bar + .bar { margin-top: 8px; }
+.eyebrow { font: 10px "IBM Plex Mono", Menlo, monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.tag { display: inline-block; padding: 2px 7px; border: 1px solid var(--line); border-radius: 3px; font-size: 10px; color: var(--muted); background: #fff; }
+.chip { display: inline-block; padding: 3px 10px; border-radius: 12px; background: var(--soft); font-size: 11px; color: var(--ink); }
+.title { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.price { font-size: 18px; font-weight: 600; }
+.small { font-size: 11px; }
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 4px 0; }
+.kv .mono { font-size: 12px; }
+.btn { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 4px; font-size: 14px; font-weight: 600; background: var(--ink); color: #fff; }
+.btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+.btn.ajax { background: var(--ajax); color: #fff; }
+.btn.disabled { opacity: 0.45; }
+.link { font-size: 13px; text-decoration: underline; }
+.notice { border: 1px solid var(--line); background: #fafafa; border-radius: 4px; padding: 12px 16px; font-size: 13px; line-height: 1.55; }
+.dashed { border: 1px dashed var(--line); border-radius: 4px; padding: 12px 16px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+.strike { text-decoration: line-through; color: var(--muted); }
+
+/* catalogue */
+.filters { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.chips { display: flex; gap: 8px; }
+.fchip { padding: 8px 15px; border: 1px solid var(--line); border-radius: 18px; font-size: 13px; background: #fff; white-space: nowrap; }
+.fchip.on { background: var(--ajax); border-color: var(--ajax); color: #fff; }
+.sort { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border: 1px solid var(--ajax); border-radius: 4px; font-size: 13px; background: #fff; white-space: nowrap; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.grid .ph { height: 200px; border: 0; border-bottom: 1px solid var(--line); }
+
+/* cart and list rows */
+.line { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 16px; padding: 16px; }
+.line .ph { height: 100px; }
+.line.gone { background: #fafafa; }
+.thumb { width: 64px; height: 64px; flex: none; }
+.hero { height: 420px; }
+
+/* checkout terms */
+.terms { width: 100%; border-collapse: collapse; font-size: 13px; }
+.terms td { padding: 12px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+.terms tr:first-child td { border-top: 0; }
+.terms td + td { color: var(--muted); width: 45%; }
+.check { display: flex; gap: 12px; align-items: center; font-size: 13px; }
+.box { width: 18px; height: 18px; border: 1.5px solid var(--ink); border-radius: 3px; flex: none; }
+
+/* confirmation and orders */
+.order { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 16px; }
+.order .ph { height: 100px; }
+.olist { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 16px; padding: 16px; align-items: start; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btns .btn { width: auto; padding: 11px 20px; font-size: 13px; }
+
+/* phone */
+.only-phone { display: none; }
+@media (max-width: 640px) {
+  .header .in { padding: 0 16px; height: 60px; }
+  .logo small, .nav .wide { display: none; }
+  .main { padding: 28px 16px 40px; }
+  .split, .half { grid-template-columns: 1fr; gap: 24px; }
+  .filters { flex-direction: column; align-items: stretch; }
+  .chips { overflow: hidden; }
+  .sort { justify-content: flex-start; }
+  .grid { grid-template-columns: 1fr; }
+  .grid .ph { height: 220px; }
+  .hero { height: 280px; }
+  .line { grid-template-columns: 1fr; }
+  .line .ph { height: 100px; }
+  .line .right { text-align: left !important; }
+  .terms td, .terms td + td { display: block; width: auto; }
+  .terms td + td { border-top: 0; padding-top: 0; }
+  .order { grid-template-columns: 1fr; }
+  .olist { grid-template-columns: 64px minmax(0, 1fr); }
+  .olist .ref { display: none; }
+  .only-phone { display: block; }
+  .btns { flex-direction: column; }
+  .btns .btn { width: 100%; }
+}
