@@ -14,7 +14,7 @@ import { getActingBuyer } from "@/lib/acting-buyer";
 import { getOrderForBuyer } from "@/lib/orders";
 import { formatNaira } from "@/lib/pricing";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
-import { REFUND_TERMS } from "@/lib/refund-policy";
+import { AcceptedTerms } from "../accepted-terms";
 import { STATUS_LABELS } from "../order-list";
 
 export const dynamic = "force-dynamic";
@@ -120,13 +120,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         <h2 id="terms" className="text-[15px] font-semibold text-[#12142B]">
           The terms you accepted
         </h2>
-        <ul className="mt-2 flex flex-col gap-1.5">
-          {REFUND_TERMS.map((term) => (
-            <li key={term.event} className="text-[13px] leading-relaxed text-[#6B6E84]">
-              {term.event}: {term.outcome.toLowerCase()}.
-            </li>
-          ))}
-        </ul>
+        <AcceptedTerms className="mt-2" />
       </section>
 
       <Link
