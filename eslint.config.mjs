@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scripts that generate the coursework documents and wireframes, not part
+    // of the application.
+    "docs/**",
   ]),
 ]);
 
