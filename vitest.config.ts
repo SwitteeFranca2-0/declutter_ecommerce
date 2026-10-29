@@ -6,6 +6,7 @@ export default defineConfig({
     // Node, not jsdom. There are no component tests in this project: see the
     // `application-testing` skill for why the seams are drawn where they are.
     environment: "node",
+    globalSetup: ["tests/helpers/global-setup.ts"],
     setupFiles: ["tests/helpers/setup.ts"],
     // Tests share one database and truncate between cases, so they cannot run
     // in parallel against each other.

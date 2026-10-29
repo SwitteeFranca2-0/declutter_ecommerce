@@ -52,22 +52,43 @@ of this submission.
 | `/orders` | Every order this buyer has placed |
 | `/orders/[id]` | One order in full, with the terms that were accepted |
 
-## Requirements
-
-- Node.js 20 or newer
-- Docker, or any local PostgreSQL 17
+## Running it
 
 No API keys, no hosted services, no accounts. Everything runs locally.
 
-## Setup
+### With Docker (one command)
+
+Needs only Docker.
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:3000 once the log shows `Ready`. The first build takes a few minutes.
+
+On start the container applies the schema and, if the database is empty, loads the sample catalogue of
+15 listings across six categories. Orders you place are kept across restarts. To start again from the
+seeded catalogue:
+
+```bash
+docker compose down -v    # deletes the database volume
+docker compose up
+```
+
+Ports 3000 and 5432 must be free. If you already run PostgreSQL locally, stop it first or use the npm
+route below.
+
+### With Node and npm
+
+Needs Node.js 20 or newer, and PostgreSQL 17, either from Docker or installed locally.
 
 ```bash
 npm install
 cp .env.example .env
 
-# Start PostgreSQL. Skip this if you already have one running locally and have
-# pointed DATABASE_URL at it instead.
-docker compose up -d
+# Start only the database. Skip this if you have PostgreSQL running locally and
+# have pointed DATABASE_URL at it instead.
+docker compose up -d postgres
 
 npm run db:migrate     # apply the schema
 npm run db:seed        # load 15 listings across six categories
@@ -76,7 +97,9 @@ npm run dev
 
 Open http://localhost:3000.
 
-If you prefer your own PostgreSQL to the container, create two databases, `declutter` and `declutter_test`, and edit `DATABASE_URL` and `TEST_DATABASE_URL` in `.env`. Nothing else changes.
+If you prefer your own PostgreSQL to the container, create two databases, `declutter` and
+`declutter_test`, and edit `DATABASE_URL` and `TEST_DATABASE_URL` in `.env`. The container creates
+`declutter_test` itself. Nothing else changes.
 
 ## Demo accounts
 
@@ -103,7 +126,9 @@ npm run test:watch # watching
 npm run typecheck  # tsc --noEmit
 ```
 
-Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue.
+Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated between cases. The setup file refuses to run if it matches `DATABASE_URL`, because a mistake there would eat the development catalogue. The suite applies any missing migrations to that database before it starts, so a fresh one needs no preparation.
+
+The tests run on the host against the database container: `docker compose up -d postgres`, then `npm test`.
 
 205 tests across 11 files. Coverage concentrates on what clicking cannot verify:
 
