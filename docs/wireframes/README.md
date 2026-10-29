@@ -12,15 +12,16 @@ summary (`POST /api/cart`), and the Pay button (`POST /api/checkout`). Everythin
 | Step | Wireframe | Built page | What it settles |
 |---|---|---|---|
 | 1 Catalogue | [desktop](png/1-catalogue-desktop.png) · [phone](png/1-catalogue-phone.png) | [desktop](screenshots/1-catalogue-desktop.png) · [phone](screenshots/1-catalogue-phone.png) | Category chips and sort re-render the grid with no reload. Every card states the deposit beside the price |
-| 2 Item detail | [desktop](png/2-item-detail-desktop.png) · [phone](png/2-item-detail-phone.png) | [desktop](screenshots/2-item-detail-desktop.png) | The deposit and the balance are stated before any commitment. Add to cart updates the badge in place |
-| 3 Cart | [desktop](png/3-cart-desktop.png) · [phone](png/3-cart-phone.png) | [desktop](screenshots/3-cart-desktop.png) · [phone](screenshots/3-cart-phone.png) | Prices and availability are re-read on every load. An item reserved by someone else is struck through and excluded from the total (BUY-6) |
-| 4 Checkout | [desktop](png/4-checkout-desktop.png) · [phone](png/4-checkout-phone.png) | [desktop](screenshots/4-checkout-desktop.png) · phone [top](screenshots/4-checkout-mobile-1.png), [scrolled](screenshots/4-checkout-mobile-2.png) | The simulated-payment notice sits at the top. Refund terms come before payment, and Pay stays disabled until they are accepted (PRD §9). No card details are asked for |
-| 5 Confirmation | [desktop](png/5-confirmation-desktop.png) · [phone](png/5-confirmation-phone.png) | desktop [top](screenshots/5-confirmation-desktop-1.png), [scrolled](screenshots/5-confirmation-desktop-2.png) · phone [top](screenshots/5-confirmation-mobile-1.png), [scrolled](screenshots/5-confirmation-mobile-2.png) | One order per item, so a two-item cart produces two references. Each shows the deposit paid, the balance outstanding and the hold expiry, read back from the order rows |
-| 6 Your orders | [desktop](png/6-orders-desktop.png) · [phone](png/6-orders-phone.png) | [desktop](screenshots/6-order-page-desktop.png) · [phone](screenshots/6-order-page-mobile.png) | Every order this buyer has placed, with its status. A lapsed hold is evaluated when the page is read, with no scheduled job |
+| 2 Item detail | [desktop](png/2-item-detail-desktop.png) · [phone](png/2-item-detail-phone.png) | [desktop](screenshots/2-item-detail-desktop.png) · [phone](screenshots/2-item-detail-phone.png) | The deposit and the balance are stated before any commitment. Add to cart updates the badge in place |
+| 3 Cart | [desktop](png/3-cart-desktop.png) · [phone](png/3-cart-phone.png) | [desktop](screenshots/3-cart-desktop.png) · [phone](screenshots/3-cart-phone.png) | Prices and availability are re-read on every load. An item reserved by someone else is struck through, excluded from the total, and blocks checkout until removed (BUY-6). The desktop screenshot shows that state |
+| 4 Checkout | [desktop](png/4-checkout-desktop.png) · [phone](png/4-checkout-phone.png) | [desktop](screenshots/4-checkout-desktop.png) · [phone](screenshots/4-checkout-phone.png) | The simulated-payment notice sits at the top. Refund terms come before payment, and Pay stays disabled until they are accepted (PRD §9, with the lapsed-hold row per [ADR-0003](../adr/0003-lapsed-hold-refund.md)). No card details are asked for |
+| 5 Confirmation | [desktop](png/5-confirmation-desktop.png) · [phone](png/5-confirmation-phone.png) | [desktop](screenshots/5-confirmation-desktop.png) · [phone](screenshots/5-confirmation-phone.png) | One order per item, so a two-item cart produces two references. Each shows the deposit paid, the balance outstanding and the hold expiry, read back from the order rows |
+| 6 Your orders | [desktop](png/6-orders-desktop.png) · [phone](png/6-orders-phone.png) | [desktop](screenshots/6-orders-desktop.png) · [phone](screenshots/6-orders-phone.png) | Every order this buyer has placed, with its status. A lapsed hold is evaluated when the page is read, with no scheduled job, and shows the deposit refunded |
+| 6a A lapsed order | see step 6 | [desktop](screenshots/7-order-lapsed-desktop.png) · [phone](screenshots/7-order-lapsed-phone.png) | The order page after a hold runs out: the deposit refunded in full and nothing more owed (ADR-0003). Drawn within the orders wireframe |
 
 ## At phone width
 
-The header keeps only the logo and the cart. Category chips scroll sideways and sort moves below them.
+The header keeps the logo, Orders and the cart, which drops its label to an icon and count. Category chips scroll sideways and sort moves below them.
 Every two-column layout stacks, with the order or cart summary after the list, and the confirmation's
 order links become full-width buttons.
 
@@ -41,13 +42,13 @@ the submission agree. What changed between the two:
   page. Both belong to the full concept (seller submission and the anonymised relay) and are not part
   of this submission. See [`../phase2-feedback.md`](../phase2-feedback.md).
 - The checkout drew card fields. The built checkout asks for none, since the payment is simulated.
-- The phone header had a menu. The built one hides the Orders link instead.
+- The phone header had a menu. The built one has none: with only Orders and the cart to show, both fit.
 - The orders page did not exist. It was added in slice 13.
 
 ## Files
 
 - `png/` holds the wireframes, readable directly on GitHub.
-- `screenshots/` holds the built pages, taken from the running application with the seeded catalogue.
+- `screenshots/` holds the built pages: full-page captures from the production build running in Docker, with the seeded catalogue, at 1440px and 390px.
 - `pages/` holds the wireframes as plain HTML, sharing `wireframe.css`. Each page opens in a browser and
   is responsive, so narrowing the window shows the phone layout.
 - `render.py` writes `pages/` and renders `png/`. It needs Google Chrome and Pillow.

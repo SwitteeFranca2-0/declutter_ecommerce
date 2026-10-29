@@ -30,7 +30,7 @@ def ph(cls="", style=""):
 
 
 def page(title, body, badge="2", nav=True):
-    orders = '<span class="wide">Orders</span>' if nav else ""
+    orders = "<span>Orders</span>" if nav else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
