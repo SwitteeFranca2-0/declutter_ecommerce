@@ -16,7 +16,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { DepositTotals, EmptyCart } from "@/app/cart/cart-parts";
 import { useCart } from "@/app/cart-provider";
+import type { CartLine, CartSummary } from "@/lib/cart-summary";
 import type { PlacedOrder, UnavailableItem } from "@/lib/checkout";
 import { HOLD_DURATION_HOURS } from "@/lib/item-state";
 import { formatNaira } from "@/lib/pricing";
@@ -49,15 +51,7 @@ export function CheckoutView() {
 
   if (lines.length === 0) {
     return (
-      <div className="mt-8 rounded border border-dashed border-[#DDDEE9] p-10 text-center">
-        <p className="text-sm font-medium text-[#12142B]">Your cart is empty</p>
-        <p className="mt-1.5 text-[13px] text-[#6B6E84]">
-          There is nothing to pay a deposit on yet.
-        </p>
-        <Link href="/" className="mt-4 inline-block text-[13px] text-[#2A2D64] underline">
-          Browse the marketplace
-        </Link>
-      </div>
+      <EmptyCart>There is nothing to pay a deposit on yet.</EmptyCart>
     );
   }
 
@@ -119,47 +113,9 @@ export function CheckoutView() {
       className="mt-6 flex flex-col items-start gap-8 lg:flex-row lg:gap-10"
     >
       <div className="flex w-full flex-col gap-6">
-        {/* Stated plainly and first: no money moves anywhere in this project. */}
-        <div
-          role="note"
-          className="flex items-start gap-2.5 rounded border border-[#E8A33D] bg-[#FCF3E3] p-3.5"
-        >
-          <span
-            aria-hidden="true"
-            className="mt-0.5 inline-flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border border-[#6B4A12] text-[11px] font-semibold text-[#6B4A12]"
-          >
-            !
-          </span>
-          <p className="text-[13px] leading-relaxed text-[#6B4A12]">
-            <strong className="font-semibold">Simulated payment.</strong> This is a course
-            prototype. No card is requested and no money moves: pressing pay records the deposit
-            exactly as a real payment confirmation would.
-          </p>
-        </div>
+        <SimulatedPaymentNotice />
 
-        <section aria-labelledby="terms-heading" className="flex flex-col gap-3">
-          <h2 id="terms-heading" className="text-base font-semibold text-[#12142B]">
-            Deposit and refund terms
-          </h2>
-          <p className="text-[13px] leading-relaxed text-[#6B6E84]">
-            Your deposit is 10% of each item&rsquo;s price and holds it for you for{" "}
-            {HOLD_DURATION_HOURS} hours. The balance is paid before collection. If the handover
-            does not go ahead:
-          </p>
-          <dl className="flex flex-col rounded-lg border border-[#DDDEE9] bg-white">
-            {REFUND_TERMS.map((term, index) => (
-              <div
-                key={term.event}
-                className={`flex flex-col gap-1 p-3.5 sm:flex-row sm:gap-6 ${
-                  index > 0 ? "border-t border-[#DDDEE9]" : ""
-                }`}
-              >
-                <dt className="text-[13px] text-[#12142B] sm:w-1/2">{term.event}</dt>
-                <dd className="text-[13px] text-[#6B6E84] sm:w-1/2">{term.outcome}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        <RefundTerms />
 
         {blocked && (
           <div className="rounded border border-[#DDDEE9] bg-[#F4F4F8] p-4">
@@ -224,42 +180,90 @@ export function CheckoutView() {
         </button>
       </div>
 
-      <aside className="flex w-full flex-none flex-col gap-4 rounded-lg border border-[#DDDEE9] bg-white p-5 lg:w-[340px]">
-        <h2 className="text-base font-semibold text-[#12142B]">Order summary</h2>
-
-        <ul className="flex flex-col gap-3">
-          {available.map((line) => (
-            <li key={line.id} className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-[#12142B]">{line.title}</span>
-              <span className="flex-none font-mono text-[13px] text-[#6B6E84]">
-                {formatNaira(line.listedPrice ?? "0")}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="h-px bg-[#DDDEE9]" />
-
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold text-[#12142B]">Deposit due today</span>
-            <span className="text-xl font-semibold text-[#12142B]">
-              {formatNaira(summary?.depositTotal ?? "0")}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="text-[13px] text-[#6B6E84]">Balance before collection</span>
-            <span className="font-mono text-[13px] text-[#6B6E84]">
-              {formatNaira(summary?.balanceTotal ?? "0")}
-            </span>
-          </div>
-        </div>
-
-        <p className="text-xs leading-relaxed text-[#6B6E84]">
-          Each item becomes its own order with its own reference. Amounts are recalculated by the
-          server when you pay.
-        </p>
-      </aside>
+      <OrderSummary lines={available} summary={summary} />
     </form>
+  );
+}
+
+/** Stated plainly and first: no money moves anywhere in this project. */
+function SimulatedPaymentNotice() {
+  return (
+    <div
+      role="note"
+      className="flex items-start gap-2.5 rounded border border-[#E8A33D] bg-[#FCF3E3] p-3.5"
+    >
+      <span
+        aria-hidden="true"
+        className="mt-0.5 inline-flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full border border-[#6B4A12] text-[11px] font-semibold text-[#6B4A12]"
+      >
+        !
+      </span>
+      <p className="text-[13px] leading-relaxed text-[#6B4A12]">
+        <strong className="font-semibold">Simulated payment.</strong> This is a course
+        prototype. No card is requested and no money moves: pressing pay records the deposit
+        exactly as a real payment confirmation would.
+      </p>
+    </div>
+  );
+}
+
+/** PRD §9, with ADR-0003's lapsed-hold row, shown before any payment (BUY-7). */
+function RefundTerms() {
+  return (
+    <section aria-labelledby="terms-heading" className="flex flex-col gap-3">
+      <h2 id="terms-heading" className="text-base font-semibold text-[#12142B]">
+        Deposit and refund terms
+      </h2>
+      <p className="text-[13px] leading-relaxed text-[#6B6E84]">
+        Your deposit is 10% of each item&rsquo;s price and holds it for you for{" "}
+        {HOLD_DURATION_HOURS} hours. The balance is paid before collection. If the handover
+        does not go ahead:
+      </p>
+      <dl className="flex flex-col rounded-lg border border-[#DDDEE9] bg-white">
+        {REFUND_TERMS.map((term, index) => (
+          <div
+            key={term.event}
+            className={`flex flex-col gap-1 p-3.5 sm:flex-row sm:gap-6 ${
+              index > 0 ? "border-t border-[#DDDEE9]" : ""
+            }`}
+          >
+            <dt className="text-[13px] text-[#12142B] sm:w-1/2">{term.event}</dt>
+            <dd className="text-[13px] text-[#6B6E84] sm:w-1/2">{term.outcome}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+/** What is being reserved and what it costs today, beside the form. */
+function OrderSummary({ lines, summary }: { lines: CartLine[]; summary: CartSummary | null }) {
+  return (
+    <aside className="flex w-full flex-none flex-col gap-4 rounded-lg border border-[#DDDEE9] bg-white p-5 lg:w-[340px]">
+      <h2 className="text-base font-semibold text-[#12142B]">Order summary</h2>
+
+      <ul className="flex flex-col gap-3">
+        {lines.map((line) => (
+          <li key={line.id} className="flex items-baseline justify-between gap-3">
+            <span className="text-[13px] text-[#12142B]">{line.title}</span>
+            <span className="flex-none font-mono text-[13px] text-[#6B6E84]">
+              {formatNaira(line.listedPrice ?? "0")}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="h-px bg-[#DDDEE9]" />
+
+      <DepositTotals
+        deposit={summary?.depositTotal ?? "0"}
+        balance={summary?.balanceTotal ?? "0"}
+      />
+
+      <p className="text-xs leading-relaxed text-[#6B6E84]">
+        Each item becomes its own order with its own reference. Amounts are recalculated by the
+        server when you pay.
+      </p>
+    </aside>
   );
 }

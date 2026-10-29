@@ -48,7 +48,7 @@ The brief names four as the floor: "at minimum, you should have a product listin
 - [x] **R-CREDENTIALS** — Demo credentials for each role documented in the README  _(2026-09-13 — slice 02: five seeded accounts documented with the shared demo password)_
 - [ ] **R-COMMITS** — Commit history reads as incremental milestones, not one bulk upload
 - [x] **R-NO-SECRETS** — No credentials committed; `.env.example` present with placeholders  _(2026-09-13 — slice 02: .env.example committed with placeholders, .env gitignored)_
-- [ ] **R-CLEAN** — No leftover debug output, commented-out blocks or test data in the final codebase
+- [x] **R-CLEAN** — No leftover debug output, commented-out blocks or test data in the final codebase  _(2026-10-29, slice 17, #31: ESLint clean across the application; no console output, TODOs or commented-out code in `src/`; unused exports, the unused `next-auth` dependency and seven unreferenced seed images removed; repeated markup in cart, checkout and order pages extracted; CheckoutView split. 207 tests pass and 18 scripted cart behaviours pass in Chrome)_
 
 ## D. Acceptance criteria (PRD §14)
 

@@ -13,7 +13,8 @@ import Link from "next/link";
 import { getActingBuyer } from "@/lib/acting-buyer";
 import { getBuyerOrders } from "@/lib/checkout";
 import { formatNaira, toMoney } from "@/lib/pricing";
-import { REFUND_TERMS } from "@/lib/refund-policy";
+
+import { AcceptedTerms } from "../accepted-terms";
 
 export const dynamic = "force-dynamic";
 
@@ -167,13 +168,7 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
         <h2 id="terms-heading" className="text-[15px] font-semibold text-[#12142B]">
           The terms you accepted
         </h2>
-        <ul className="flex flex-col gap-1.5">
-          {REFUND_TERMS.map((term) => (
-            <li key={term.event} className="text-[13px] leading-relaxed text-[#6B6E84]">
-              {term.event}: {term.outcome.toLowerCase()}.
-            </li>
-          ))}
-        </ul>
+        <AcceptedTerms />
       </section>
 
       <div className="mt-8 flex flex-col gap-3 rounded-lg border border-[#2A2D64] bg-[#EDEEF6] p-5">

@@ -21,17 +21,17 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
 import {
   addItem,
+  CART_STORAGE_KEY,
   countItems,
   EMPTY_CART,
   hasItem,
@@ -65,6 +65,15 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const EMPTY_SUMMARY: CartSummary = {
+  lines: [],
+  availableCount: 0,
+  unavailableCount: 0,
+  priceTotal: "0",
+  depositTotal: "0",
+  balanceTotal: "0",
+};
+
 /** Browser storage, or null during server rendering. */
 function browserStorage() {
   if (typeof window === "undefined") return null;
@@ -76,96 +85,116 @@ function browserStorage() {
   }
 }
 
+// ── The cart identifiers as an external store ────────────────────────────────
+// localStorage is outside React, so React reads it through
+// useSyncExternalStore rather than copying it into state after mount. The
+// server renders an empty cart and the browser swaps in the stored one during
+// hydration, with no mismatch and no flash.
+
+/** Null until first read in the browser. Also the fallback when storage is blocked. */
+let current: Cart | null = null;
+const listeners = new Set<() => void>();
+
+function getCart(): Cart {
+  if (current === null) {
+    const storage = browserStorage();
+    current = storage ? readCart(storage) : EMPTY_CART;
+  }
+  return current;
+}
+
+function setCart(next: Cart) {
+  current = next;
+  const storage = browserStorage();
+  // A failed write is not worth interrupting the buyer over: the cart still
+  // works for this page load, it just will not survive a reload.
+  if (storage) writeCart(storage, next);
+  listeners.forEach((notify) => notify());
+}
+
+function subscribe(notify: () => void) {
+  // Another tab changed the cart: re-read it here too.
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== CART_STORAGE_KEY) return;
+    current = null;
+    notify();
+  };
+  listeners.add(notify);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(notify);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+const serverCart = () => EMPTY_CART;
+const noSubscription = () => () => {};
+
+/** The last response, and which cart it answered. */
+type Resolved = { key: string; summary: CartSummary | null; error: string | null };
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [ids, setIds] = useState<Cart>(EMPTY_CART);
-  const [summary, setSummary] = useState<CartSummary | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const ids = useSyncExternalStore(subscribe, getCart, serverCart);
+  // False while server rendering and hydrating, true once in the browser.
+  const ready = useSyncExternalStore(noSubscription, () => true, () => false);
 
-  const inFlight = useRef<AbortController | null>(null);
+  const [resolved, setResolved] = useState<Resolved | null>(null);
+  // Bumped to re-check the same cart, e.g. after a checkout conflict.
+  const [version, setVersion] = useState(0);
 
-  // Read storage after mount. Reading during render would make the server and
-  // client markup disagree and produce a hydration mismatch.
+  const key = `${version}:${ids.join(",")}`;
+  const empty = ids.length === 0;
+
   useEffect(() => {
-    const storage = browserStorage();
-    setIds(storage ? readCart(storage) : EMPTY_CART);
-    setReady(true);
-  }, []);
+    if (!ready || empty) return;
 
-  const refresh = useCallback(async (nextIds: Cart) => {
-    inFlight.current?.abort();
-
-    if (nextIds.length === 0) {
-      setSummary({
-        lines: [],
-        availableCount: 0,
-        unavailableCount: 0,
-        priceTotal: "0",
-        depositTotal: "0",
-        balanceTotal: "0",
-      });
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
+    // A newer cart supersedes this request: the cleanup aborts it.
     const controller = new AbortController();
-    inFlight.current = controller;
-    setLoading(true);
-    setError(null);
 
-    try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ itemIds: nextIds }),
-        signal: controller.signal,
+    fetch("/api/cart", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ itemIds: ids }),
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+        return response.json() as Promise<CartSummary>;
+      })
+      .then((summary) => setResolved({ key, summary, error: null }))
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        // Keep the last good summary on screen, flagged as possibly stale.
+        setResolved((previous) => ({
+          key,
+          summary: previous?.summary ?? null,
+          error: "Could not check your cart. Prices and availability may be out of date.",
+        }));
       });
 
-      if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+    return () => controller.abort();
+  }, [key, ids, empty, ready]);
 
-      setSummary((await response.json()) as CartSummary);
-    } catch (cause) {
-      // An abort is a newer request superseding this one, not a failure.
-      if (cause instanceof DOMException && cause.name === "AbortError") return;
-      setError("Could not check your cart. Prices and availability may be out of date.");
-    } finally {
-      if (inFlight.current === controller) setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    void refresh(ids);
-  }, [ids, ready, refresh]);
-
-  /** Update storage and state together, so they can never disagree. */
-  const commit = useCallback((next: Cart) => {
-    const storage = browserStorage();
-    // A failed write is not worth interrupting the buyer over: the cart still
-    // works for this page load, it just will not survive a reload.
-    if (storage) writeCart(storage, next);
-    setIds(next);
-  }, []);
+  const upToDate = resolved?.key === key;
+  const summary = empty ? EMPTY_SUMMARY : (resolved?.summary ?? null);
 
   const value = useMemo<CartContextValue>(
     () => ({
       ids,
       summary,
-      loading,
-      error,
+      loading: ready && !empty && !upToDate,
+      error: !empty && upToDate ? (resolved?.error ?? null) : null,
       ready,
-      add: (id: string) => commit(addItem(ids, id)),
-      remove: (id: string) => commit(removeItem(ids, id)),
-      clear: (gone: readonly string[]) => commit(removeItems(ids, gone)),
+      add: (id: string) => setCart(addItem(ids, id)),
+      remove: (id: string) => setCart(removeItem(ids, id)),
+      clear: (gone: readonly string[]) => setCart(removeItems(ids, gone)),
       contains: (id: string) => hasItem(ids, id),
-      revalidate: () => void refresh(ids),
+      revalidate: () => setVersion((v) => v + 1),
       // Before the first response, fall back to the raw count so the badge is
       // never wrong by omission.
       count: summary ? summary.availableCount + summary.unavailableCount : countItems(ids),
     }),
-    [ids, summary, loading, error, ready, commit, refresh],
+    [ids, summary, ready, empty, upToDate, resolved],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

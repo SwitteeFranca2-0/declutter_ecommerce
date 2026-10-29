@@ -247,3 +247,15 @@ Not every entry needs all three headings. Use the ones that apply.
 **Challenge:** The phone pass needed a filled cart, which lives in `localStorage`, so a plain screenshot could not reach the cart, checkout or orders pages. Playwright drove the installed Chrome at 390px against a throwaway database, filled the cart, paid, lapsed one hold in the database, and measured every page for anything wider than the viewport. Nothing overflowed. The one real fault was found by reading the header code, not by the measurement: Orders was hidden below the `sm` breakpoint with no menu, so a phone could not reach it.
 
 **Learning:** Measurement and looking catch different faults. The overflow check proved no page breaks its width; only looking showed that a whole destination was missing from the phone navigation.
+
+## 2026-10-29, slice 17, tidying for submission
+
+**Challenge:** ESLint reported two errors in the cart provider: state set synchronously inside effects. The provider copied `localStorage` into state after mount, with a `ready` flag to avoid a flash of an empty cart, and set a loading flag before every request. Both were mirrors of something that already existed. The identifiers now come from `localStorage` through `useSyncExternalStore`, and loading and error are derived by comparing the current cart with the one the last response answered. The public interface did not change, so no caller did either.
+
+**Learning:** No automated test covers the provider, deliberately: the testing approach has no component tests. So the refactor was proved in a browser instead, with a scripted walk of eighteen cart behaviours. The same script was run against the old provider to show it could fail. It did, on exactly one check: a second open tab following the cart, which the new provider gains for free from the `storage` event and the old one never had. A behavioural check is only evidence if it is known to catch a difference.
+
+**Challenge:** The first run of that script reported four failures that were not bugs. Playwright's `networkidle` wait returns at once on a page that has already loaded, so the checks read the badge before the cart's request had started. Polling for the expected value fixed the script, not the application. Worth remembering when a test fails right after a refactor: check the test's timing before the code.
+
+**Deviation:** The tidy-up removed `next-auth` and its environment variables, which the Phase 1 stack lists. On this branch nothing imports it, and the brief asks for unused code to go. It stays on `full-scope`, where sign-in exists. Also removed: two exports nothing read, and seven placeholder images the seed never loaded.
+
+**Learning:** Repeated markup was easier to find by reading the two largest views side by side than by any tool. The cart and checkout pages shared the empty state and the totals block line for line, and the confirmation and order pages shared the accepted-terms list. Each repetition had already drifted once: the checkout said "Balance before collection" where every other page said "on collection".
