@@ -98,6 +98,44 @@ describe("a buyer's order list", () => {
   });
 });
 
+describe("what a buyer is owed back", () => {
+  // ADR-0003. With no way to make contact on this branch every hold lapses,
+  // so a lapsed hold refunds the whole deposit rather than keeping half.
+  it("refunds the whole deposit on a lapsed hold, and nothing is left to pay", async () => {
+    const buyer = await makeUser("buyer");
+    const { orderId } = await boughtItem(buyer.id, { price: "72000.00" });
+    await testDb.order.update({
+      where: { id: orderId },
+      data: { holdExpiresAt: new Date(Date.now() - 3600_000) },
+    });
+
+    const [listed] = await getBuyerOrderList(buyer.id);
+    const single = await getOrderForBuyer(orderId, buyer.id);
+
+    for (const order of [listed, single]) {
+      expect(order).toMatchObject({
+        status: "expired",
+        depositAmount: "7200",
+        refundAmount: "7200",
+        balanceDue: "0",
+      });
+    }
+  });
+
+  it("refunds nothing on a live hold, and the balance is still due", async () => {
+    const buyer = await makeUser("buyer");
+    const { orderId } = await boughtItem(buyer.id, { price: "72000.00" });
+
+    const order = await getOrderForBuyer(orderId, buyer.id);
+
+    expect(order).toMatchObject({
+      status: "deposit_paid",
+      refundAmount: "0",
+      balanceDue: "64800",
+    });
+  });
+});
+
 describe("one order", () => {
   it("returns the order with its deposit, balance and hold expiry", async () => {
     const buyer = await makeUser("buyer");

@@ -29,6 +29,10 @@ export type BuyerOrder = {
   listedPrice: string;
   depositAmount: string;
   balanceAmount: string;
+  /** What the buyer gets back. The whole deposit on a lapsed hold (ADR-0003). */
+  refundAmount: string;
+  /** What the buyer still owes. Nothing once the hold has lapsed. */
+  balanceDue: string;
   holdExpiresAt: string;
   createdAt: string;
 };
@@ -68,6 +72,11 @@ type Row = {
 };
 
 function toView(order: Row): BuyerOrder {
+  // ADR-0003: this branch offers no way to make contact, so every hold can
+  // lapse through no fault of the buyer. A lapsed hold refunds the whole
+  // deposit, where PRD §9 would keep half for the full concept.
+  const lapsed = order.status === "expired";
+
   return {
     id: order.id,
     reference: orderReference(order.id),
@@ -78,6 +87,8 @@ function toView(order: Row): BuyerOrder {
     listedPrice: order.item.listedPrice.toString(),
     depositAmount: order.depositAmount.toString(),
     balanceAmount: order.balanceAmount.toString(),
+    refundAmount: lapsed ? order.depositAmount.toString() : "0",
+    balanceDue: lapsed ? "0" : order.balanceAmount.toString(),
     holdExpiresAt: order.holdExpiresAt.toISOString(),
     createdAt: order.createdAt.toISOString(),
   };
