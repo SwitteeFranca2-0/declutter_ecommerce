@@ -68,26 +68,25 @@ export function OrderList({ orders }: { orders: BuyerOrder[] }) {
                   </span>
                 </div>
 
-                <span className="flex flex-wrap items-center gap-2">
-                  {lapsed && (
-                    <span className="rounded-full bg-[#F4F4F8] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#6B6E84]">
-                      Hold expired
-                    </span>
-                  )}
-                  <span
-                    className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                      lapsed ? "bg-[#F4F4F8] text-[#6B6E84]" : "bg-[#EDEEF6] text-[#2A2D64]"
-                    }`}
-                  >
-                    {STATUS_LABELS[order.status] ?? order.status}
-                  </span>
+                <span
+                  className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                    lapsed ? "bg-[#F4F4F8] text-[#6B6E84]" : "bg-[#EDEEF6] text-[#2A2D64]"
+                  }`}
+                >
+                  {STATUS_LABELS[order.status] ?? order.status}
                 </span>
 
                 <span className="text-[13px] text-[#6B6E84]">
-                  {formatNaira(order.depositAmount)} paid,{" "}
-                  <span className="text-[#12142B]">
-                    {formatNaira(order.balanceAmount)} on collection
-                  </span>
+                  {lapsed ? (
+                    <>{formatNaira(order.refundAmount)} deposit refunded</>
+                  ) : (
+                    <>
+                      {formatNaira(order.depositAmount)} paid,{" "}
+                      <span className="text-[#12142B]">
+                        {formatNaira(order.balanceDue)} on collection
+                      </span>
+                    </>
+                  )}
                 </span>
               </div>
             </Link>

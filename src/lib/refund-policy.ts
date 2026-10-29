@@ -20,8 +20,10 @@ export const REFUND_TERMS: readonly { event: string; outcome: string }[] = [
     outcome: "Half the deposit is kept, half is refunded",
   },
   {
-    event: `The ${HOLD_DURATION_HOURS}-hour hold runs out without contact`,
-    outcome: "Treated as not attending: half the deposit is kept",
+    // ADR-0003: refunded in full on this branch, where the buyer has no way to
+    // make contact. PRD §9 treats it as abandonment for the full concept.
+    event: `The ${HOLD_DURATION_HOURS}-hour hold runs out`,
+    outcome: "Deposit refunded in full",
   },
   {
     event: "The seller does not attend",
