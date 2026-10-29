@@ -34,7 +34,7 @@ This changes the deck's Phase 2 "Next" panel, which listed "Fold full-scope back
 
 ## Found while preparing the screenshots
 
-Three gaps in the built pages, none blocking, all for Phase 3:
+Three gaps in the built pages. All three were fixed in slice 16 (#29), with the refund decision recorded in [ADR-0003](adr/0003-lapsed-hold-refund.md):
 
 1. At phone width the Orders link is hidden (`src/app/header.tsx`) and there is no menu, so a buyer on a phone can reach their orders only from a confirmation page.
 2. On the orders page an expired hold shows its status twice, as a tag and a chip.

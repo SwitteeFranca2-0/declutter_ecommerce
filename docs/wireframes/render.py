@@ -148,7 +148,7 @@ cart = page("Cart", f"""
 
 TERMS = [("You inspect the item and decide not to buy", "Deposit refunded in full, less a small administrative fee"),
          ("You do not attend the handover", "Half the deposit is kept, half is refunded"),
-         ("The 72-hour hold runs out without contact", "Treated as not attending: half the deposit is kept"),
+         ("The 72-hour hold runs out", "Deposit refunded in full"),
          ("The seller does not attend", "Deposit refunded in full")]
 rows = "".join(f"<tr><td>{a}</td><td>{b}</td></tr>" for a, b in TERMS)
 summary = """<div class="card pad stack">
@@ -228,8 +228,8 @@ orders = page("Your orders", f"""
 <div class="stack">
   {olist("DCL-XXXXXXX1", "Deposit paid, held for you", '<span class="muted">&#8358;950 paid,</span> <b>&#8358;8,550</b> on collection')}
   {olist("DCL-XXXXXXX2", "Deposit paid, held for you", '<span class="muted">&#8358;1,600 paid,</span> <b>&#8358;14,400</b> on collection')}
-  {olist("DCL-XXXXXXX3", "Hold expired", '<span class="muted">&#8358;4,900 deposit</span>', faded=True)}
-  {olist("DCL-XXXXXXX4", "Hold expired", '<span class="muted">&#8358;7,800 deposit</span>', faded=True)}
+  {olist("DCL-XXXXXXX3", "Hold expired", '<span class="muted">&#8358;4,900 deposit refunded</span>', faded=True)}
+  {olist("DCL-XXXXXXX4", "Hold expired", '<span class="muted">&#8358;7,800 deposit refunded</span>', faded=True)}
 </div>
 """, badge="0")
 

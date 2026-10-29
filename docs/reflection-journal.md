@@ -237,3 +237,13 @@ Not every entry needs all three headings. Use the ones that apply.
 **Challenge:** Verifying on a fresh volume showed `npm test` failing 107 of 205 tests on a clean clone. The test database existed but was never migrated: on the development machine it had been migrated by hand once, long ago, so the gap was invisible. A Vitest global setup now runs `prisma migrate deploy` against the test database before the suite, and the Postgres container creates `declutter_test` on first start. Both a fresh database and the existing one pass all 205.
 
 **Learning:** "A clean clone works" is only true if it was tried on a clean clone. The test database gap had been there since slice 02 and every check since ran on a machine that already had what the examiner would not. The verification ran in a separate compose project with its own volume and ports, which tested the real files without deleting the development data.
+
+## 2026-10-29, slice 16, a lapsed hold is refunded, and the phone pass
+
+**Deviation:** PRD §9 treats a hold that lapses without contact as abandonment and keeps half the deposit. On the submission branch there is no messaging and no meetup, so every hold lapses and none through the buyer's choice. Keeping half would penalise the only possible outcome. A lapsed hold is now refunded in full on this branch, and PRD §9 stands for the full concept, where contact exists. Recorded as ADR-0003. The checkout terms, the orders list and the order page had disagreed with each other and with the deck; they now share one rule, computed on the server.
+
+**Learning:** A scope reduction changes more than which features exist. The refund policy was written for a product where the buyer could act during the hold, and it stayed correct-looking in the code long after the build stopped offering that. Cutting scope means re-reading the rules that assumed the cut features, not only removing the features.
+
+**Challenge:** The phone pass needed a filled cart, which lives in `localStorage`, so a plain screenshot could not reach the cart, checkout or orders pages. Playwright drove the installed Chrome at 390px against a throwaway database, filled the cart, paid, lapsed one hold in the database, and measured every page for anything wider than the viewport. Nothing overflowed. The one real fault was found by reading the header code, not by the measurement: Orders was hidden below the `sm` breakpoint with no menu, so a phone could not reach it.
+
+**Learning:** Measurement and looking catch different faults. The overflow check proved no page breaks its width; only looking showed that a whole destination was missing from the phone navigation.
