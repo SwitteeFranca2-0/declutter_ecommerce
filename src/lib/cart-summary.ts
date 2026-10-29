@@ -34,8 +34,6 @@ export const cartRequestSchema = z.object({
     .transform((ids) => Array.from(new Set(ids))),
 });
 
-export type CartRequest = z.infer<typeof cartRequestSchema>;
-
 export type CartLine = {
   id: string;
   title: string;

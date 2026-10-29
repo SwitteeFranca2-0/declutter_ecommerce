@@ -48,15 +48,6 @@ export const TRANSITIONS: readonly Transition[] = [
 /** No transition leaves these. */
 export const TERMINAL_STATUSES: readonly ItemStatus[] = ["rejected", "completed"];
 
-/** Items in these statuses are removed from the public marketplace. */
-export const OFF_MARKET_STATUSES: readonly ItemStatus[] = [
-  "pending_review",
-  "rejected",
-  "on_hold",
-  "sold",
-  "completed",
-];
-
 export function isTerminal(status: ItemStatus): boolean {
   return TERMINAL_STATUSES.includes(status);
 }

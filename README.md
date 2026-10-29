@@ -213,8 +213,7 @@ message thread polling, exists on the `full-scope` branch and is not part of thi
 | Images | Local filesystem | No object storage account |
 | Tests | Vitest | Route-handler and pure-module seams, against a real database |
 
-`next-auth` is installed and unused on this branch: the sign-in it powers lives on `full-scope`.
-Leaflet, used there for the meetup map, is not installed here.
+Sign-in (NextAuth) and the meetup map (Leaflet) live on `full-scope` and are not installed here.
 
 Every choice is constrained by one rule: an examiner must clone this repository and run it with no API keys and no paid services.
 
