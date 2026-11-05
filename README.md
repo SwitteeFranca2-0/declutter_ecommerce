@@ -25,7 +25,7 @@ marketplace, filter and sort it without a page reload, open an item, build a car
 navigation, pay a simulated 10% deposit, land on a confirmation page backed by a real order row,
 and return to those orders later. Every figure shown is recalculated on the server.
 
-205 tests pass against a real PostgreSQL database, and a clean clone runs with no API keys and no
+207 tests pass against a real PostgreSQL database, and a clean clone runs with no API keys and no
 accounts.
 
 ### What is deliberately not here
@@ -101,6 +101,34 @@ If you prefer your own PostgreSQL to the container, create two databases, `declu
 `declutter_test`, and edit `DATABASE_URL` and `TEST_DATABASE_URL` in `.env`. The container creates
 `declutter_test` itself. Nothing else changes.
 
+### Configuration and credentials
+
+There are no secret keys anywhere in the project. Configuration is three environment variables,
+set in `.env` (copied from `.env.example`, which is the only one committed):
+
+| Variable | What it is |
+|---|---|
+| `DATABASE_URL` | The development database |
+| `DIRECT_URL` | The same database, used by migrations; set it equal to `DATABASE_URL` |
+| `TEST_DATABASE_URL` | A separate database the tests wipe; must differ from `DATABASE_URL` |
+
+The one credential, user `declutter` with password `declutter`, is a placeholder for the local
+database container, which `docker-compose.yml` creates with those values on your own machine. To use
+your own, change `POSTGRES_USER` and `POSTGRES_PASSWORD` in `docker-compose.yml` and the matching part
+of each URL, both in `.env` and under the `app` service in `docker-compose.yml`.
+
+### Database scripts and data
+
+Nothing needs importing by hand: both routes above apply these for you.
+
+| File | Does |
+|---|---|
+| `prisma/migrations/20260913094811_init/migration.sql` | The whole schema, as SQL: tables, enums, indexes and the one-active-order-per-item constraint |
+| `prisma/schema.prisma` | The same schema in Prisma's notation, which generates the typed client |
+| `prisma/seed.ts` | Sample data: five demo users and 15 listings across six categories |
+| `public/seed/` | The listing photographs the seed refers to |
+| `docker/initdb/01-test-database.sql` | Creates `declutter_test` when the database container first starts |
+
 ## Demo accounts
 
 Every seeded account uses the password **`declutter`**.
@@ -130,7 +158,7 @@ Tests run against `TEST_DATABASE_URL`, a separate database that gets truncated b
 
 The tests run on the host against the database container: `docker compose up -d postgres`, then `npm test`.
 
-205 tests across 11 files. Coverage concentrates on what clicking cannot verify:
+207 tests across 11 files. Coverage concentrates on what clicking cannot verify:
 
 - the item state machine's legal and illegal transitions, including ones no page drives yet
 - one active order per item under two simultaneous deposits, guaranteed by a partial unique index
